@@ -12,21 +12,21 @@ isRadiation = false
 ###### Constans #######
 speed_of_light = 299.792
 a = 1.372e-2
-sigma_a0 = 3.9071164263502112e+002
-sigma_t0 = 8.5314410158161809e+002
+sigma_a0 = 4.2e+004 # 3.9071164263502113e+004
+sigma_t0 = 8.5314410158161813e+000
 
 ###### Initial Conditions #######
 rho_init_left = 1.
-rho_init_right = 1.0749588725963066e+000 
-vel_init_left = 1.2298902390050911e-001
-vel_init_right = 1.1441277153558302e-001
-temp_init_left = 1.0000000000000001e-001
-temp_init_right = 1.0494545175154467e-001
-eps_init_left = 1.3720000000000002e-006
-p_init_left = 8.232e-03
-p_init_right = 9.28508e-03
-eps_init_right = 1.6642117992569650e-006
-membrane = 0.015
+rho_init_right = 3.5979106530611014
+vel_init_left = 5.8566201857385288e+001
+vel_init_right = 1.6277836640428294e+001 
+temp_init_left = 1.
+temp_init_right = 8.5571992184757608e+000
+p_init_left = 82.32
+p_init_right = 390.9772444
+eps_init_left = 1.3720000000000000e-002
+eps_init_right = 7.3566599630083758e-001
+membrane = 0.
 []
 
 #############################################################################
@@ -41,7 +41,7 @@ membrane = 0.015
   	gamma = 1.6666667
   	Pinf = 0.
   	q = 0.
-  	Cv = 1.2348000000000001e-001
+  	Cv = 1.2348000000000001e+2
   	q_prime = 0.
   [../]
 
@@ -50,15 +50,21 @@ membrane = 0.015
     variable = pressure
     jump_name = jump_grad_press
   [../]
+
+[./JumpGradDens]
+    type = JumpGradientInterface
+    variable = rho
+    jump_name = jump_grad_dens
+[../]
 []
 
 ###### Mesh #######
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 400
-  xmin = 0
-  xmax = 0.030
+  nx = 2000
+  xmin = -9.040524501451145667e-2
+  xmax = 2.e-2
   block_id = '0'
 []
 
@@ -70,7 +76,7 @@ membrane = 0.015
 [Variables]
   [./rho]
     family = LAGRANGE
-    scaling = 1e+4
+    scaling = 1e+0
 	[./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -79,7 +85,7 @@ membrane = 0.015
 
   [./rhou]
     family = LAGRANGE
-    scaling = 1e+4
+    scaling = 1e+0
 	[./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -88,7 +94,7 @@ membrane = 0.015
 
   [./rhoE]
     family = LAGRANGE
-    scaling = 1e+4
+    scaling = 1e+0
 	[./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -97,7 +103,7 @@ membrane = 0.015
 
   [./epsilon]
     family = LAGRANGE
-    scaling = 1e+1
+    scaling = 1e+0
       [./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -239,6 +245,11 @@ membrane = 0.015
     order = CONSTANT
   [../]
 
+    [./jump_grad_dens]
+        family = MONOMIAL
+        order = CONSTANT
+    [../]
+
   [./mu_max]
     family = MONOMIAL
     order = CONSTANT
@@ -352,11 +363,12 @@ membrane = 0.015
     pressure = pressure
     density = rho
     epsilon = epsilon
-    jump = jump_grad_press
-    pressure_PPS_name = AveragePressure
+    jump_press = jump_grad_press
+    jump_dens = jump_grad_dens
+    epsilon_PPS_name = AverageEpsilon
     velocity_PPS_name = AverageVelocity
     eos = eos
-    Ce = 1.
+    Ce = 1.2
   [../]
 []
 
@@ -372,9 +384,9 @@ membrane = 0.015
     variable = velocity
 [../]
 
-[./AveragePressure]
+[./AverageEpsilon]
     type = ElementAverageValue
-    variable = pressure
+    variable = epsilon
 [../]
 
 []
@@ -385,18 +397,9 @@ membrane = 0.015
 ##############################################################################################
 [BCs]
   [./MassLeft]
-    type = RheaBCs
+    type = DirichletBC
     variable = rho
-    equation_name = CONTINUITY
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
-    epsilon = epsilon
-    eos = eos
-    p_bc = 8.232e-03
-    T_bc = 1.0000000000000001e-001
-    v_bc = 1.2298902390050911e-001
+    value = 1.
     boundary = 'left'
   [../]
 
@@ -410,23 +413,14 @@ membrane = 0.015
     pressure = pressure
     epsilon = epsilon
     eos = eos
-    p_bc = 9.28508e-03
+    p_bc = 2534.471307
     boundary = 'right'
   [../]
 
   [./MomentumLeft]
-    type = RheaBCs
+    type = DirichletBC
     variable = rhou
-    equation_name = MOMENTUM
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
-    epsilon = epsilon
-    eos = eos
-    p_bc = 8.232e-03
-    T_bc = 1.0000000000000001e-001
-    v_bc = 1.2298902390050911e-001
+    value = 5.8566201857385288e+001
     boundary = 'left'
   [../]
 
@@ -440,23 +434,14 @@ membrane = 0.015
     pressure = pressure
     epsilon = epsilon
     eos = eos
-    p_bc = 9.28508e-03
+    p_bc = 2534.471307
     boundary = 'right'
   [../]
 
   [./EnergyLeft]
-    type = RheaBCs
+    type = DirichletBC
     variable = rhoE
-    equation_name = ENERGY
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
-    epsilon = epsilon
-    eos = eos
-    p_bc = 8.232e-03
-    T_bc = 1.0000000000000001e-001
-    v_bc = 1.2298902390050911e-001
+    value = 1.8384800000000000e+003
     boundary = 'left'
   [../]
 
@@ -470,37 +455,28 @@ membrane = 0.015
     pressure = pressure
     epsilon = epsilon
     eos = eos
-    p_bc = 9.28508e-03
+    p_bc = 2534.471307
     boundary = 'right'
   [../]
 
   [./RadiationLeft]
+#    type = DirichletBC
+#    value = 1.3720000000000000e-002
     type = RheaBCs
     variable = epsilon
     equation_name = RADIATION
     velocity = velocity
-    temperature = temperature
     density = rho
     pressure = pressure
-    epsilon = epsilon
     eos = eos
-    p_bc = 8.232e-03
-    T_bc = 1.0000000000000001e-001
-    v_bc = 1.2298902390050911e-001
+    p_bc = 2534.471307
     boundary = 'left'
   [../]
 
   [./RadiationRight]
-    type = RheaBCs
+    type = DirichletBC
     variable = epsilon
-    equation_name = RADIATION
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
-    epsilon = epsilon
-    eos = eos
-    p_bc = 9.28508e-03
+    value = 7.3566599630083758e+001 
     boundary = 'right'
   [../]
 []
@@ -517,11 +493,8 @@ membrane = 0.015
     type = FDP
     full = true
     petsc_options = '-snes_mf_operator -snes_ksp_ew'
-    petsc_options_iname = '-mat_fd_coloring_err'
-    petsc_options_value = '1.e-13'#'1.e-12'
-    #petsc_options = '-snes_mf_operator -ksp_converged_reason -ksp_monitor -snes_ksp_ew' 
-    #petsc_options_iname = '-pc_type'
-    #petsc_options_value = 'lu'
+    petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
+    petsc_options_value = '1.e-12       ds             ds'
   [../]
 []
 
@@ -532,22 +505,22 @@ membrane = 0.015
 ##############################################################################################
 
 [Executioner]
-  type = Transient   # Here 
+  type = Transient
   string scheme = 'bdf2'
-  num_steps = 300
-  #end_time = 200
-  dt = 1.e-2
+#num_steps = 2000
+  end_time = 0.05
+  dt = 1.e-6
   dtmin = 1e-9
   l_tol = 1e-8
-  nl_rel_tol = 1e-6
+  nl_rel_tol = 1e-10
   nl_abs_tol = 1e-6
   l_max_its = 50
   nl_max_its = 50
-#  [./TimeStepper]
-#    type = FunctionDT
-#    time_t =  '0.     2.6e-2  5.e-1  0.56'
-#    time_dt = '1e-4   1e-4    1e-3    1e-3'
-#  [../]
+  [./TimeStepper]
+    type = FunctionDT
+    time_t =  '0.     1e-3    1.'
+    time_dt = '1e-8   1e-4    1e-4'
+  [../]
 []
 
 ##############################################################################################
@@ -557,8 +530,9 @@ membrane = 0.015
 ##############################################################################################
 
 [Output]
+  file_base = Mach5_medium_2000_out
   output_initial = true
-  interval = 10
+  interval = 50
   exodus = true
   postprocessor_screen = false
   perf_log = true

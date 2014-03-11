@@ -6,7 +6,7 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-viscosity_name = ENTROPY
+viscosity_name = FIRST_ORDER
 isRadiation = false
 
 ###### Constans #######
@@ -26,7 +26,7 @@ eps_init_left = 1.3720000000000002e-006
 p_init_left = 8.232e-03
 p_init_right = 9.28508e-03
 eps_init_right = 1.6642117992569650e-006
-membrane = 0.015
+membrane = 0.
 []
 
 #############################################################################
@@ -57,8 +57,8 @@ membrane = 0.015
   type = GeneratedMesh
   dim = 1
   nx = 200
-  xmin = 0
-  xmax = 0.030
+  xmin = -5.27105579632e-002
+  xmax = 4.62235483783162e-002
   block_id = '0'
 []
 
@@ -226,7 +226,7 @@ membrane = 0.015
     family = LAGRANGE
    [../]
 
-  [./rad_temp]
+  [./radiation_temperature]
     family = LAGRANGE
   [../]
 
@@ -300,8 +300,8 @@ membrane = 0.015
 
   [./RadTempAK]
     type = RadTempAux
-    variable = rad_temp
-    temperature = temperature
+    variable = radiation_temperature
+    temperature = epsilon
   [../]
 
   [./MachNumberAK]
@@ -352,7 +352,7 @@ membrane = 0.015
     pressure = pressure
     density = rho
     epsilon = epsilon
-    jump = jump_grad_press
+    jump_press = jump_grad_press
     epsilon_PPS_name = AverageEpsilon
     velocity_PPS_name = AverageVelocity
     eos = eos
@@ -498,10 +498,10 @@ membrane = 0.015
 
 [Executioner]
   type = Transient   # Here 
-  string scheme = 'bdf2'
+  scheme = 'bdf2'
   #num_steps = 1000
-  end_time = 10
-  dt = 1.e-3
+  end_time = 12
+  dt = 1.e-2
   dtmin = 1e-9
   l_tol = 1e-8
   nl_rel_tol = 1e-6
@@ -511,7 +511,7 @@ membrane = 0.015
 #  [./TimeStepper]
 #    type = FunctionDT
 #    time_t =  '0.     2.6e-2  5.e-1  0.56'
-#    time_dt = '1e-4   1e-4    1e-3    1e-3'
+#    time_dt = '1e-4   1e-4    1e-2    1e-2'
 #  [../]
 []
 
@@ -525,6 +525,8 @@ membrane = 0.015
   output_initial = true
   interval = 100
   exodus = true
+  tecplot = true
+  tecplot_binary = false
   postprocessor_screen = false
   perf_log = true
 []

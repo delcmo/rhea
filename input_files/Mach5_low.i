@@ -12,21 +12,22 @@ isRadiation = false
 ###### Constans #######
 speed_of_light = 299.792
 a = 1.372e-2
-sigma_a0 = 3.9071164263502113e+004
-sigma_t0 = 8.5314410158161813e+000 
+sigma_a0 = 3.9071164263502113e+003 # 3.9071164263502113e+004
+sigma_t0 = 8.5314410158161813e+000
 
 ###### Initial Conditions #######
 rho_init_left = 1.
-rho_init_right = 2.2860748989303659
-vel_init_left = 2.3426480742954116e+001
-vel_init_right = 1.0247468599526270e+001 
+rho_init_right = 3.5979106530611014
+vel_init_left = 5.8566201857385288e+001
+vel_init_right = 1.6277836640428294e+001 
 temp_init_left = 1.
-temp_init_right = 2.0775699953301916
+temp_init_right = 8.5571992184757608e+000
 p_init_left = 82.32
 p_init_right = 390.9772444
 eps_init_left = 1.3720000000000000e-002
-eps_init_right = 2.5560936967521913e-001
-membrane = 0.0
+eps_init_right = 7.3566599630083758e-001
+membrane = 0.
+length = 0.001
 []
 
 #############################################################################
@@ -51,22 +52,21 @@ membrane = 0.0
     jump_name = jump_grad_press
   [../]
 
-  [./JumpGradDens]
+[./JumpGradDens]
     type = JumpGradientInterface
     variable = rho
     jump_name = jump_grad_dens
-  [../]
+[../]
 []
 
 ###### Mesh #######
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 200
-  xmin = -2.4922344511e-002
-  xmax = 2.3376251559162e-002
+  nx = 1000
+  xmin = -9.040524501451145667e-2
+  xmax = 2.e-2
   block_id = '0'
-#elem_type = EDGE3
 []
 
 #############################################################################
@@ -246,10 +246,10 @@ membrane = 0.0
     order = CONSTANT
   [../]
 
-  [./jump_grad_dens]
-    family = MONOMIAL
-    order = CONSTANT
-  [../]
+    [./jump_grad_dens]
+        family = MONOMIAL
+        order = CONSTANT
+    [../]
 
   [./mu_max]
     family = MONOMIAL
@@ -366,9 +366,10 @@ membrane = 0.0
     epsilon = epsilon
     jump_press = jump_grad_press
     jump_dens = jump_grad_dens
+    epsilon_PPS_name = AverageEpsilon
     velocity_PPS_name = AverageVelocity
     eos = eos
-    Ce = 1.
+    Ce = 1.2
   [../]
 []
 
@@ -384,10 +385,10 @@ membrane = 0.0
     variable = velocity
 [../]
 
-#[./AverageEpsilon]
-#    type = ElementAverageValue
-#    variable = epsilon
-#[../]
+[./AverageEpsilon]
+    type = ElementAverageValue
+    variable = epsilon
+[../]
 
 []
 ##############################################################################################
@@ -413,14 +414,14 @@ membrane = 0.0
     pressure = pressure
     epsilon = epsilon
     eos = eos
-    p_bc = 390.9772444
+    p_bc = 2534.471307
     boundary = 'right'
   [../]
 
   [./MomentumLeft]
     type = DirichletBC
     variable = rhou
-    value = 2.3426480742954116e+001
+    value = 5.8566201857385288e+001
     boundary = 'left'
   [../]
 
@@ -434,14 +435,14 @@ membrane = 0.0
     pressure = pressure
     epsilon = epsilon
     eos = eos
-    p_bc = 390.9772444
+    p_bc = 2534.471307
     boundary = 'right'
   [../]
 
   [./EnergyLeft]
     type = DirichletBC
     variable = rhoE
-    value = 397.88
+    value = 1.8384800000000000e+003
     boundary = 'left'
   [../]
 
@@ -455,7 +456,7 @@ membrane = 0.0
     pressure = pressure
     epsilon = epsilon
     eos = eos
-    p_bc = 390.9772444
+    p_bc = 2534.471307
     boundary = 'right'
   [../]
 
@@ -469,14 +470,14 @@ membrane = 0.0
     density = rho
     pressure = pressure
     eos = eos
-    p_bc = 9.28508e-03
+    p_bc = 2534.471307
     boundary = 'left'
   [../]
 
   [./RadiationRight]
     type = DirichletBC
     variable = epsilon
-    value = 2.5560936967521913e-001
+    value = 7.3566599630083758e+001 
     boundary = 'right'
   [../]
 []
@@ -492,10 +493,9 @@ membrane = 0.0
   [./FDP_Newton]
     type = FDP
     full = true
-    solve_type = 'PJFNK'
-#petsc_options = '-snes_mf_operator -snes_ksp_ew'
-#petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
-#petsc_options_value = '1.e-12       ds             ds'
+    petsc_options = '-snes_mf_operator -snes_ksp_ew'
+    petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
+    petsc_options_value = '1.e-12       ds             ds'
   [../]
 []
 
@@ -507,21 +507,21 @@ membrane = 0.0
 
 [Executioner]
   type = Transient
-  scheme = 'bdf2'
-#num_steps = 200
-  end_time = 0.005
-  dt = 2.e-6
+  string scheme = 'bdf2'
+#num_steps = 2000
+  end_time = 0.05
+  dt = 1.e-6
   dtmin = 1e-9
   l_tol = 1e-8
-  nl_rel_tol = 1e-6
+  nl_rel_tol = 1e-10
   nl_abs_tol = 1e-6
   l_max_its = 50
   nl_max_its = 50
-#  [./TimeStepper]
-#    type = FunctionDT
-#    time_t =  '0.     2.6e-2  5.e-1  0.56'
-#    time_dt = '1e-4   1e-4    1e-3    1e-3'
-#  [../]
+  [./TimeStepper]
+    type = FunctionDT
+    time_t =  '0.     1e-3    1.'
+    time_dt = '1e-8   1e-4    1e-4'
+  [../]
 []
 
 ##############################################################################################
@@ -531,7 +531,7 @@ membrane = 0.0
 ##############################################################################################
 
 [Output]
-  #file_base = Mach2_nel2000_out
+  #file_base = Mach5_bis4
   output_initial = true
   interval = 50
   exodus = true

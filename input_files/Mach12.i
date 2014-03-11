@@ -24,8 +24,8 @@ temp_init_left = 1.0000000000000001e-001
 temp_init_right = 1.1947515210501813e-001
 eps_init_left = 1.3720000000000002e-006
 eps_init_right = 2.7955320762182542e-006 
-p_init_left = 8.232e-3
-p_init_right = 1.2759408e-2
+#p_init_left = 8.232e-3
+#p_init_right = 1.2759408e-2
 membrane = 0.010
 []
 
@@ -50,13 +50,19 @@ membrane = 0.010
     variable = pressure
     jump_name = jump_grad_press
   [../]
+  
+  [./JumpGradDens]
+    type = JumpGradientInterface
+    variable = rho
+    jump_name = jump_grad_dens
+  [../]
 []
 
 ###### Mesh #######
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 500
+  nx = 2000
   xmin = 0
   xmax = 0.020
   block_id = '0'
@@ -70,7 +76,7 @@ membrane = 0.010
 [Variables]
   [./rho]
     family = LAGRANGE
-    scaling = 1e+2
+    scaling = 1e+4
 	[./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -79,7 +85,7 @@ membrane = 0.010
 
   [./rhou]
     family = LAGRANGE
-    scaling = 1e+2
+    scaling = 1e+4
 	[./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -88,7 +94,7 @@ membrane = 0.010
 
   [./rhoE]
     family = LAGRANGE
-    scaling = 1e+2
+    scaling = 1e+4
 	[./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -97,7 +103,7 @@ membrane = 0.010
 
   [./epsilon]
     family = LAGRANGE
-    scaling = 1e+2
+    scaling = 1e+4
       [./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -235,6 +241,11 @@ membrane = 0.010
   [../]
 
   [./jump_grad_press]
+    family = MONOMIAL
+    order = CONSTANT
+  [../]
+  
+  [./jump_grad_dens]
     family = MONOMIAL
     order = CONSTANT
   [../]
@@ -385,8 +396,8 @@ membrane = 0.010
     pressure = pressure
     density = rho
     epsilon = epsilon
-    jump = jump_grad_press
-    pressure_PPS_name = AveragePressure
+    jump_press = jump_grad_press
+    jump_dens = jump_grad_dens
     velocity_PPS_name = AverageVelocity
     eos = eos
     Ce = 1.
@@ -423,7 +434,6 @@ membrane = 0.010
     variable = rho
     equation_name = CONTINUITY
     velocity = velocity
-    temperature = temperature
     density = rho
     pressure = pressure
     eos = eos
@@ -438,7 +448,6 @@ membrane = 0.010
     variable = rho
     equation_name = CONTINUITY
     velocity = velocity
-    temperature = temperature
     density = rho
     pressure = pressure
     eos = eos
@@ -451,7 +460,6 @@ membrane = 0.010
     variable = rhou
     equation_name = MOMENTUM
     velocity = velocity
-    temperature = temperature
     density = rho
     pressure = pressure
     eos = eos
@@ -466,7 +474,6 @@ membrane = 0.010
     variable = rhou
     equation_name = MOMENTUM
     velocity = velocity
-    temperature = temperature
     density = rho
     pressure = pressure
     eos = eos
@@ -479,7 +486,6 @@ membrane = 0.010
     variable = rhoE
     equation_name = ENERGY
     velocity = velocity
-    temperature = temperature
     density = rho
     pressure = pressure
     eos = eos
@@ -494,7 +500,6 @@ membrane = 0.010
     variable = rhoE
     equation_name = ENERGY
     velocity = velocity
-    temperature = temperature
     density = rho
     pressure = pressure
     eos = eos
@@ -551,19 +556,19 @@ membrane = 0.010
   type = Transient
   string scheme = 'bdf2'
   #num_steps = 1000
-  end_time = 1
+  end_time = 1.5
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
-  nl_rel_tol = 1e-6
-  nl_abs_tol = 1e-6
+  nl_rel_tol = 1e-8
+  nl_abs_tol = 1e-8
   l_max_its = 50
   nl_max_its = 10
-#  [./TimeStepper]
-#    type = FunctionDT
-#    time_t =  '0.     2.6e-2  5.e-1  0.56'
-#    time_dt = '1e-4   1e-4    1e-3    1e-3'
-#  [../]
+  [./TimeStepper]
+    type = FunctionDT
+    time_t =  '0.     2.e-3   1.'
+    time_dt = '1.e-8  1.e-3   1.e-3'
+  [../]
 []
 
 ##############################################################################################
@@ -573,8 +578,9 @@ membrane = 0.010
 ##############################################################################################
 
 [Output]
+  file_base = Mach12_nel2000_out
   output_initial = true
-  interval = 100
+  interval = 200
   exodus = true
   postprocessor_screen = false
   perf_log = true

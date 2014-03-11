@@ -37,5 +37,5 @@ RadTempAux::RadTempAux(const std::string & name, InputParameters parameters) :
 Real
 RadTempAux::computeValue()
 {
-    return _a*std::pow(_temperature[_qp], 4);
+    return std::pow(_temperature[_qp]/_a, 0.25);
 }

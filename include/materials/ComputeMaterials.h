@@ -20,6 +20,13 @@ protected:
   virtual void computeQpProperties();
 
 private:
+    // Cross-section types
+    enum CrossSectionType
+    {
+        CONSTANT = 0,
+        TYPE1 = 1
+    };
+    
     // Viscosity types
     enum ViscosityType
     {
@@ -27,8 +34,9 @@ private:
         ENTROPY = 1
     };
     
-    // Boolean for temperature and density dependent cross-section:
-    const bool & _tempDependentCS;
+    // Cross-section:
+    std::string _cs_name;
+    MooseEnum _cs_type;
     
     // Artificial diffusion name
     std::string _visc_name;
@@ -53,7 +61,8 @@ private:
     VariableGradient & _grad_eps_old;
     
     // Jumps:
-    VariableValue & _jump;
+    VariableValue & _jump_press;
+    VariableValue & _jump_dens;
     
     // Material properties: cross-section and diffusion.
     MaterialProperty<Real> & _sigma_a;
