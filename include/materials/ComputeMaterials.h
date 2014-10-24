@@ -46,19 +46,15 @@ private:
     
     // Variables:
     VariableValue & _vel;
-    VariableValue & _vel_old;
     VariableValue & _rho;
-    VariableValue & _rho_old;
+    VariableValue & _rho_dot;
     VariableGradient & _grad_rho;
-    VariableGradient & _grad_rho_old;
     VariableValue & _pressure;
-    VariableValue & _pressure_old;
+    VariableValue & _pressure_dot;
     VariableGradient & _grad_press;
-    VariableGradient & _grad_press_old;
     VariableValue & _epsilon;
-    VariableValue & _epsilon_old;
+    VariableValue & _epsilon_dot;
     VariableGradient & _grad_eps;
-    VariableGradient & _grad_eps_old;
     
     // Jumps:
     VariableValue & _jump_press;
@@ -71,7 +67,6 @@ private:
     
     // Material properties: viscosity coefficients.
     MaterialProperty<Real> & _mu;
-    MaterialProperty<Real> & _mu_max;
     MaterialProperty<Real> & _kappa;
     MaterialProperty<Real> & _kappa_max;
     
@@ -86,10 +81,6 @@ private:
     
     // UserObject: equation of state
     const EquationOfState & _eos;
-    
-    // Name of the posprocessors for pressure and velocity:
-    std::string _epsilon_pps_name;
-    std::string _velocity_pps_name;
 };
 
 #endif //COMPUTEMATERIALS_H

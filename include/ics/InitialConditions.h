@@ -58,6 +58,7 @@ private:
     
     // Position of the membrane:
     Real _membrane;
+    Real _length;
     
     // Name of the variable:
     std::string _name_var;

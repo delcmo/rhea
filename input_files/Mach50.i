@@ -12,8 +12,8 @@ isRadiation = false
 ###### Constans #######
 speed_of_light = 299.792
 a = 1.372e-2
-sigma_a0 = 3.9071164263502113e+004
-sigma_t0 = 8.5314410158161813e+000 
+sigma_a0 = 3.9071164263502113e+000
+sigma_t0 = 8.5314410158161813e+004
 
 ###### Initial Conditions #######
 rho_init_left = 1.
@@ -27,6 +27,7 @@ p_init_right = 45890.85148
 eps_init_left = 1.3720000000000000e-02
 eps_init_right = 7.3372623010289914e+05 
 membrane = 0.20
+length = 0.20
 []
 
 #############################################################################
@@ -56,7 +57,7 @@ membrane = 0.20
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 400
+  nx = 300
   xmin = 0
   xmax = 0.30
   block_id = '0'
@@ -482,9 +483,10 @@ membrane = 0.20
   [./FDP_Newton]
     type = FDP
     full = true
-    petsc_options = '-snes_mf_operator -snes_ksp_ew'
-    petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
-    petsc_options_value = '1.e-12       ds             ds'
+    solve_type = PJFNK
+#    petsc_options = '-snes_mf_operator -snes_ksp_ew'
+#    petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
+#    petsc_options_value = '1.e-12       ds             ds'
   [../]
 []
 
@@ -505,7 +507,7 @@ membrane = 0.20
   nl_rel_tol = 1e-8
   nl_abs_tol = 1e-6
   l_max_its = 50
-  nl_max_its = 50
+  nl_max_its = 10
 [./TimeStepper]
     type = FunctionDT
     time_t =  '0.    1e-5  1e-3  4e-3'
@@ -519,12 +521,13 @@ membrane = 0.20
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 
-[Output]
-  output_initial = true
-  interval = 40
-  exodus = true
-  postprocessor_screen = false
-  perf_log = true
+[Outputs]
+    output_initial = true
+    interval = 1
+    console = true
+    exodus = true
+    postprocessor_screen = false
+    perf_log = true
 []
 
 ##############################################################################################

@@ -6,14 +6,14 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-viscosity_name = FIRST_ORDER
+viscosity_name = ENTROPY
 isRadiation = false
 
 ###### Constans #######
 speed_of_light = 299.792
 a = 1.372e-2
-sigma_a0 = 3.9071164263502112e+002
-sigma_t0 = 8.5314410158161809e+002
+sigma_a0 = 3.9071164263502112e+002 # 002
+sigma_t0 = 8.5314410158161809e+008 # 002
 
 ###### Initial Conditions #######
 rho_init_left = 1.
@@ -23,10 +23,11 @@ vel_init_right = 1.1441277153558302e-001
 temp_init_left = 1.0000000000000001e-001
 temp_init_right = 1.0494545175154467e-001
 eps_init_left = 1.3720000000000002e-006
-p_init_left = 8.232e-03
-p_init_right = 9.28508e-03
 eps_init_right = 1.6642117992569650e-006
+#p_init_left = 8.232e-03
+#p_init_right = 9.28508e-03
 membrane = 0.
+length = 1e-2
 []
 
 #############################################################################
@@ -49,6 +50,12 @@ membrane = 0.
     type = JumpGradientInterface
     variable = pressure
     jump_name = jump_grad_press
+  [../]
+  
+  [./JumpGradDens]
+    type = JumpGradientInterface
+    variable = rho
+    jump_name = jump_grad_dens
   [../]
 []
 
@@ -239,17 +246,17 @@ membrane = 0.
     order = CONSTANT
   [../]
 
-  [./mu_max]
+  [./jump_grad_dens]
+    family = MONOMIAL
+    order = CONSTANT
+  [../]
+
+  [./diffusion]
     family = MONOMIAL
     order = CONSTANT
   [../]
 
   [./kappa_max]
-    family = MONOMIAL
-    order = CONSTANT
-  [../]
-
-  [./mu]
     family = MONOMIAL
     order = CONSTANT
   [../]
@@ -313,22 +320,16 @@ membrane = 0.
     eos = eos
   [../]
 
-  [./MuMaxAK]
+  [./DiffusionAK]
     type = MaterialRealAux
-    variable = mu_max
-    property = mu_max
+    variable = diffusion
+    property = diffusion
   [../]
 
   [./KappaMaxAK]
     type = MaterialRealAux
     variable = kappa_max
     property = kappa_max
-  [../]
-
-  [./MuAK]
-    type = MaterialRealAux
-    variable = mu
-    property = mu
   [../]
 
   [./KappaAK]
@@ -353,10 +354,9 @@ membrane = 0.
     density = rho
     epsilon = epsilon
     jump_press = jump_grad_press
-    epsilon_PPS_name = AverageEpsilon
-    velocity_PPS_name = AverageVelocity
+    jump_dens = jump_grad_dens
     eos = eos
-    Ce = 1.
+    Ce = 1.2
   [../]
 []
 
@@ -367,15 +367,15 @@ membrane = 0.
 ##############################################################################################
 [Postprocessors]
 
-[./AverageVelocity]
-    type = ElementAverageValue
-    variable = velocity
-[../]
+#[./AverageVelocity]
+#    type = ElementAverageValue
+#    variable = velocity
+#[../]
 
-[./AverageEpsilon]
-    type = ElementAverageValue
-    variable = epsilon
-[../]
+#[./AverageEpsilon]
+#    type = ElementAverageValue
+#    variable = epsilon
+#[../]
 
 []
 ##############################################################################################
@@ -459,16 +459,16 @@ membrane = 0.
   [../]
 
   [./RadiationRight]
-    type = DirichletBC
-#    type = RheaBCs
-   variable = epsilon
-#    equation_name = RADIATION
-#   velocity = velocity
-#    density = rho
-#    pressure = pressure
-#    eos = eos
-#    p_bc = 9.28508e-03
-    value = 1.6642117992569650e-006
+#    type = DirichletBC
+    type = RheaBCs
+    variable = epsilon
+    equation_name = RADIATION
+    velocity = velocity
+    density = rho
+    pressure = pressure
+    eos = eos
+    p_bc = 9.28508e-03
+#    value = 1.6642117992569650e-006
     boundary = 'right'
   [../]
 []
@@ -484,7 +484,8 @@ membrane = 0.
   [./FDP_Newton]
     type = FDP
     full = true
-    petsc_options = '-snes_mf_operator -snes_ksp_ew'
+    solve_type = PJFNK
+#    petsc_options = '-snes_mf_operator -snes_ksp_ew'
     petsc_options_iname = '-mat_fd_coloring_err'
     petsc_options_value = '1.e-12'
   [../]
@@ -497,22 +498,22 @@ membrane = 0.
 ##############################################################################################
 
 [Executioner]
-  type = Transient   # Here 
+  type = Transient
   scheme = 'bdf2'
   #num_steps = 1000
   end_time = 12
-  dt = 1.e-2
+  dt = 1.e-1
   dtmin = 1e-9
   l_tol = 1e-8
   nl_rel_tol = 1e-6
   nl_abs_tol = 1e-6
   l_max_its = 50
   nl_max_its = 50
-#  [./TimeStepper]
-#    type = FunctionDT
-#    time_t =  '0.     2.6e-2  5.e-1  0.56'
-#    time_dt = '1e-4   1e-4    1e-2    1e-2'
-#  [../]
+  [./TimeStepper]
+    type = FunctionDT
+    time_t =  '0.     1.  '
+    time_dt = '1e-2   1e-2'
+  [../]
 []
 
 ##############################################################################################
@@ -521,14 +522,13 @@ membrane = 0.
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 
-[Output]
-  output_initial = true
-  interval = 100
-  exodus = true
-  tecplot = true
-  tecplot_binary = false
-  postprocessor_screen = false
-  perf_log = true
+[Outputs]
+    output_initial = true
+    interval = 10
+    console = true
+    exodus = true
+#    postprocessor_screen = false
+#    perf_log = true
 []
 
 ##############################################################################################

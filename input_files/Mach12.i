@@ -13,7 +13,7 @@ isRadiation = false
 speed_of_light = 299.792
 a = 1.372e-2
 sigma_a0 = 3.9071164263502112e+002
-sigma_t0 = 8.5314410158161809e+002
+sigma_t0 = 8.5314410158161809e+004
 
 ###### Initial Conditions #######
 rho_init_left = 1.
@@ -27,6 +27,7 @@ eps_init_right = 2.7955320762182542e-006
 #p_init_left = 8.232e-3
 #p_init_right = 1.2759408e-2
 membrane = 0.010
+length = 2e-3
 []
 
 #############################################################################
@@ -62,7 +63,7 @@ membrane = 0.010
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 2000
+  nx = 500 # 2000
   xmin = 0
   xmax = 0.020
   block_id = '0'
@@ -577,13 +578,13 @@ membrane = 0.010
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 
-[Output]
-  file_base = Mach12_nel2000_out
-  output_initial = true
-  interval = 200
-  exodus = true
-  postprocessor_screen = false
-  perf_log = true
+[Outputs]
+    output_initial = true
+    interval = 10
+    console = true
+    exodus = true
+#    postprocessor_screen = false
+#    perf_log = true
 []
 
 ##############################################################################################
