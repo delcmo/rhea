@@ -1,5 +1,7 @@
 #include "ComputeICsRadHydro.h"
 
+/** The algorithm used to compute the pre and post shock values si taken from Jarrod Edward's dissertation on page 82 **/
+
 template<>
 InputParameters validParams<ComputeICsRadHydro>()
 {
@@ -16,6 +18,8 @@ InputParameters validParams<ComputeICsRadHydro>()
   params.addRequiredParam<Real>("T_hat_0", "Non-dimensionalyzed pre-shock temperature");
   // Equation of state
   params.addRequiredParam<UserObjectName>("eos", "parameters for eos.");
+  // Execute on set to initial by default
+  params.set<MultiMooseEnum>("execute_on") = "initial";
 
   return params;
 }
@@ -112,6 +116,12 @@ ComputeICsRadHydro::ComputeICsRadHydro(const std::string & name, InputParameters
   std::cout<<"--------------------------------------------------------------"<<std::endl;
   std::cout<<"Pre-schock pressure value: "<< press_hat_0 << std::endl;
   std::cout<<"Post-schock pressure value: "<< press_hat_1 << std::endl;
+  std::cout<<"--------------------------------------------------------------"<<std::endl;
+
+  // Compute and output the pre- and post-shock temperature values
+  std::cout<<"--------------------------------------------------------------"<<std::endl;
+  std::cout<<"Pre-schock temperature value: "<< _T_hat_pre << std::endl;
+  std::cout<<"Post-schock temperature value: "<< _T_hat_post << std::endl;
   std::cout<<"--------------------------------------------------------------"<<std::endl;
 }
 

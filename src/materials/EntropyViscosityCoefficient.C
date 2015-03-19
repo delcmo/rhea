@@ -17,6 +17,7 @@ InputParameters validParams<EntropyViscosityCoefficient>()
   // Cconstant parameter:
   params.addParam<double>("Cjump", 1., "Coefficient for viscosity");
   params.addParam<bool>("is_first_order_viscosity", false, "Boolean for first order viscosity");
+  params.addParam<bool>("use_jumps", true, "Use jumps");
   // Userobject:
   params.addRequiredParam<UserObjectName>("eos", "Equation of state");
 
@@ -49,6 +50,7 @@ EntropyViscosityCoefficient::EntropyViscosityCoefficient(const std::string & nam
     // Parameters
     _Cjump(getParam<double>("Cjump")),
     _is_first_order_viscosity(getParam<bool>("is_first_order_viscosity")),
+    _use_jumps(getParam<bool>("use_jumps")),
     // UserObject:
     _eos(getUserObject<EquationOfState>("eos"))
 {
@@ -75,7 +77,10 @@ EntropyViscosityCoefficient::computeQpProperties()
   Real w2 = _t_step > 2 ? _dt/(_dt_old*(_dt+_dt_old)) : 0.;
 
   // Compute the jump:
-  Real jump_value = _Cjump*std::fabs(vel)*(_jump_press[_qp] + sp*sp*_jump_dens[_qp]);
+  Real jump = _jump_press[_qp] + sp*sp*_jump_dens[_qp];
+  Real grad = std::fabs(_grad_press[_qp](0)) + sp*sp*_grad_rho[_qp](0);
+  Real jump_value = _use_jumps ? jump : grad;
+  jump_value *= _Cjump*std::fabs(vel);
 
   // Compute the pressure contribution to the residual:
   Real residual=w0*_press[_qp]+w1*_press_old[_qp]+w2*_press_older[_qp];

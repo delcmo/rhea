@@ -49,6 +49,7 @@ private:
   // Multiplicative coefficient for viscosity:
   double _Cjump;
   bool _is_first_order_viscosity;
+  bool _use_jumps;
 
   // UserObject: equation of state
   const EquationOfState & _eos;

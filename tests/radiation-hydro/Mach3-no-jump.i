@@ -9,6 +9,7 @@ order = FIRST
 isRadiation = false
 Cjump = 1.
 is_first_order_viscosity = false
+use_jumps = false
 
 ###### Constans #######
 speed_of_light = 299.792
@@ -17,13 +18,13 @@ a = 1.372e-2
 #sigma_t0 = '8.5314410158161813e+002 0. 0.'
 
 ###### Initial Conditions #######
-Mach_inlet = 50.
+Mach_inlet = 3.
 rho_hat_0 = 1.
 T_hat_0 = 0.1
 P = 1e-4
 K = 1
 SIGMA_A = 1e6
-membrane = 0.1
+membrane = 0.
 []
 
 #############################################################################
@@ -61,9 +62,9 @@ membrane = 0.1
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 200
-  xmin = 0.
-  xmax = 0.2
+  nx = 400
+  xmin = -2.e-2
+  xmax = 1.e-2
   block_id = '0'
 []
 
@@ -75,7 +76,7 @@ membrane = 0.1
 [Variables]
   [./rho]
     family = LAGRANGE
-    scaling = 1e+4
+    scaling = 1e+0
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -85,7 +86,7 @@ membrane = 0.1
 
   [./rhou]
     family = LAGRANGE
-    scaling = 1e+5
+    scaling = 1e+0
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -423,15 +424,14 @@ membrane = 0.1
 ##############################################################################################
 
 [Preconditioning]
-  active = 'FDP'
-  [./FDP]
+  active = 'FDP_Newton'
+  [./FDP_Newton]
     type = FDP
     full = true
     solve_type = 'PJFNK'
-#    line_search = 'basic'
-#    petsc_options = '-snes_mf_operator -snes_ksp_ew'
-#    petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
-#    petsc_options_value = '1.e-12       ds             ds'
+    #petsc_options = '-snes_mf_operator -snes_ksp_ew'
+    #petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
+    #petsc_options_value = '1.e-12       ds             ds'
   [../]
 []
 
@@ -452,10 +452,11 @@ membrane = 0.1
   nl_abs_tol = 1e-7
   l_max_its = 50
   nl_max_its = 50
+  num_steps = 30
   [./TimeStepper]
     type = FunctionDT
-    time_t =  '0.     1.e-3   2.e-3  1.'
-    time_dt = '1.e-5  1.e-6   1.e-6  1.e-3'
+    time_t =  '0.     1.e-2   1.e-1  1.'
+    time_dt = '1.e-4  1.e-4   1.e-3  1.e-3'
   [../]
 []
 

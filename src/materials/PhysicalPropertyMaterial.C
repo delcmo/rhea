@@ -15,25 +15,26 @@ InputParameters validParams<PhysicalPropertyMaterial>()
   params.addParam<Real>("speed_of_light", 299.792, "speed of light");
   params.addParam<Real>("a", 1.372e-2, "Boltzman constant");
   // Non-dimensionalized numbers
-  params.addParam<Real>("P", -1., "Ratio of radiant energy to material energy");
-  params.addParam<Real>("K", -1., "Radiative diffusivity");
-  params.addParam<Real>("SIGMA_A", -1., "Non-dimensionalized absorption cross-section");
+  params.addParam<Real>("P", "Ratio of radiant energy to material energy");
+  params.addParam<Real>("K", "Radiative diffusivity");
+  params.addParam<Real>("SIGMA_A", "Non-dimensionalized absorption cross-section");
   // Pre-shock parameters
-  params.addParam<Real>("rho_hat_0", -1., "Pre-shock density value");
-  params.addParam<Real>("T_hat_0", -1., "Pre-shock temperature value");
+  params.addParam<Real>("rho_hat_0", "Pre-shock density value");
+  params.addParam<Real>("T_hat_0", "Pre-shock temperature value");
   // Parameters used in the computation of the cross sections  
-  params.addParam<RealVectorValue>("sigma_a0", (-1., 0., 0), "absorption cross-section coefficient (sigma_a0, sigma_a1, t_a)");
-  params.addParam<RealVectorValue>("sigma_t0", (-1., 0., 0), "total cross-section coefficient (sigma_t0, sigma_t1, n_t)");
+  params.addParam<RealVectorValue>("sigma_a0", "absorption cross-section coefficient (sigma_a0, sigma_a1, t_a)");
+  params.addParam<RealVectorValue>("sigma_t0", "total cross-section coefficient (sigma_t0, sigma_t1, n_t)");
+  params.addParam<Real>("opacity", "opacity to use");  
   // Userobject:
   params.addRequiredParam<UserObjectName>("eos", "Equation of state");
 
   return params;
 }
 
-PhysicalPropertyMaterial::PhysicalPropertyMaterial(const std::string & name, InputParameters parameters) :
-    Material(name, parameters),
+PhysicalPropertyMaterial::PhysicalPropertyMaterial(const std::string & name, InputParameters params) :
+    Material(name, params),
     // Declare viscosity types
-    _cs_type("constant temp_dpt invalid", getParam<std::string>("cross_section_name")),
+    _cs_type("constant temp_dpt opacity invalid", getParam<std::string>("cross_section_name")),
     // Coupled variables:
     _rho(coupledValue("rho")),
     // Coupled aux variables
@@ -46,27 +47,27 @@ PhysicalPropertyMaterial::PhysicalPropertyMaterial(const std::string & name, Inp
     _c(getParam<Real>("speed_of_light")),
     _a(getParam<Real>("a")),
     // Non-dimensionalized numbers
-    _P(getParam<Real>("P")),
-    _K(getParam<Real>("K")),
-    _SIGMA_A(getParam<Real>("SIGMA_A")),
+    _P(isParamValid("P") ? getParam<Real>("P") : 1.),
+    _K(isParamValid("K") ? getParam<Real>("K") : 1.),
+    _SIGMA_A(isParamValid("SIGMA_A") ? getParam<Real>("SIGMA_A") : 0.),
     // Pre-shock parameters
-    _rho_hat_pre(getParam<Real>("rho_hat_0")),
-    _T_hat_pre(getParam<Real>("T_hat_0")),
+    _rho_hat_pre(isParamValid("rho_hat_0") ? getParam<Real>("rho_hat_0") : 1.),
+    _T_hat_pre(isParamValid("T_hat_0") ? getParam<Real>("T_hat_0") : 1.),
     // Parameters used in the computation of the cross sections
-    _sigma_a0(getParam<RealVectorValue>("sigma_a0")),
-    _sigma_t0(getParam<RealVectorValue>("sigma_t0")),
+    _sigma_a0(isParamValid("sigma_a0") ? getParam<RealVectorValue>("sigma_a0") : (1., 0., 0.)),
+    _sigma_t0(isParamValid("sigma_t0") ? getParam<RealVectorValue>("sigma_t0") : (1., 0., 0.)),
+    _opacity(isParamValid("opacity") ? getParam<Real>("opacity") : 0.),
     // Equation of state
     _eos(getUserObject<EquationOfState>("eos"))
 {
-  // Check consistency of the physical parameters
-  if (_sigma_a0(0)>_sigma_t0(0))
-    mooseError("The value of the absorption cross section provided in '" << this->name() << "' is larger than the total cross-section value.");
-
   // Computed the constant total and absorption cross-sections from the initial conditions
   if (_cs_type == constant)
   {
-    if (_P<0 || _K<0 || _SIGMA_A<0 || _rho_hat_pre<0 || _T_hat_pre<0)
-      mooseError("'"<<this->name()<<"': the cross section are constant but valid input parameters are not provided.");
+    if ( !params.isParamValid("P") || !params.isParamValid("K") || !params.isParamValid("SIGMA_A") )
+      mooseError("'"<<this->name()<<"': the cross section are constant but valid input parameters are not provided: P, K and/or SIGMA_A.");
+
+    if ( !params.isParamValid("rho_hat_0") || !params.isParamValid("T_hat_0") )
+      mooseError("'"<<this->name()<<"': the cross section are constant but valid input parameters are not provided: rho_hat_0 and/or T_hat_0.");
 
     Real a_hat_0 = std::sqrt(_a*_T_hat_pre*_T_hat_pre*_T_hat_pre*_T_hat_pre/(_rho_hat_pre*_P));
     _sigma_hat_t = _c/(3.*_K*a_hat_0);
@@ -75,8 +76,18 @@ PhysicalPropertyMaterial::PhysicalPropertyMaterial(const std::string & name, Inp
 
   // Check for valid parameters if temperature-dependent cross section
   if (_cs_type == temp_dpt)
-    if (_sigma_a0(0)<0 || _sigma_t0(0)<0)
-      mooseError("'"<<this->name()<<"': the cross section are temperature dependent but valid input parameters are not provided.");
+    if (!params.isParamValid("sigma_a0") || !params.isParamValid("sigma_t0"))
+      mooseError("'"<<this->name()<<"': the cross section are temperature dependent but valid input parameters are not provided: sigma_a0 and/or sigma_t0.");
+
+  // Check for valid parameters if opacity
+  if (_cs_type == opacity)
+  {
+    if (!params.isParamValid("sigma_a0") || !params.isParamValid("sigma_t0"))
+      mooseError("'"<<this->name()<<"': the cross sections are computed from opacity but valid input parameters are not provided: sigma_a0 and/or sigma_t0.");
+
+    if (!params.isParamValid("opacity"))
+      mooseError("'"<<this->name()<<"': the cross sections are computed from opacity but valid input parameters are not provided: opacity.");
+  }
 }
 
 void
@@ -95,6 +106,9 @@ PhysicalPropertyMaterial::computeQpProperties()
       _sigma_t[_qp] = _sigma_t0(0) / (_sigma_t0(1) + std::pow(temp, _sigma_t0(2)));
       _sigma_a[_qp] = _sigma_a0(0) / (_sigma_a0(1) + std::pow(temp, _sigma_a0(2)));
       break;
+    case opacity:
+      _sigma_t[_qp] = 0.;
+      _sigma_a[_qp] = 0.;
     default:
       mooseError("'"<<this->name()<<"':The cross-section type is not implemented.");
       break;
