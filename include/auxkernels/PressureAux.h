@@ -33,13 +33,13 @@ public:
 protected:
   virtual Real computeValue();
 
-    // Coupled variables:
-    VariableValue & _rho;
-    VariableValue & _rhou;
-    VariableValue & _rhoE;
-    
-    // Equation of state:
-    const EquationOfState & _eos;
+  // Coupled variables:
+  VariableValue & _rho;
+  VariableValue & _rhou;
+  VariableValue & _rhoE;
+
+  // Equation of state:
+  const EquationOfState & _eos;
 };
 
 #endif //PRESSUREAUX_H

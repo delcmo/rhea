@@ -16,6 +16,7 @@
 #define RHEAMOMENTUM_H
 
 #include "Kernel.h"
+#include "EquationOfState.h"
 
 class RheaMomentum;
 
@@ -37,12 +38,13 @@ protected:
   virtual Real computeQpOffDiagJacobian( unsigned int jvar );
 
 private:
-    // Material coupled variables:
-    VariableValue & _vel;
-    VariableValue & _pressure;
-    
-    // Radiation variable:
-    VariableValue & _epsilon;
+  // coupled variables:
+  VariableValue & _rho;
+  VariableValue & _rhoE;
+  VariableValue & _epsilon;
+
+  // Equation of state
+  const EquationOfState & _eos;
 };
 
 #endif // RHEAMOMENTUM_H

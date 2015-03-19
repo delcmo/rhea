@@ -20,10 +20,12 @@ template<>
 InputParameters validParams<InternalEnergyAux>()
 {
   InputParameters params = validParams<AuxKernel>();
-    // Coupled variables
-    params.addRequiredCoupledVar("rho", "density");
-    params.addRequiredCoupledVar("rhou", "momentum");
-    params.addRequiredCoupledVar("rhoE", "material total energy");
+
+  // Coupled variables
+  params.addRequiredCoupledVar("rho", "density");
+  params.addRequiredCoupledVar("rhou", "momentum");
+  params.addRequiredCoupledVar("rhoE", "material total energy");
+  
   return params;
 }
 
@@ -33,14 +35,17 @@ InternalEnergyAux::InternalEnergyAux(const std::string & name, InputParameters p
     _rho(coupledValue("rho")),
     _rhou(coupledValue("rhou")),
     _rhoE(coupledValue("rhoE"))
-{}
+{
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
+}
 
 Real
 InternalEnergyAux::computeValue()
 {
-    // Compute the velocity:
-    Real _vel = _rhou[_qp] / _rho[_qp];
-    
-    // Return internal energy:
-    return _rhoE[_qp] - 0.5*_rho[_qp]*_vel*_vel;
+  // Compute the velocity:
+  Real vel = _rhou[_qp] / _rho[_qp];
+
+  // Return internal energy:
+  return _rhoE[_qp] - 0.5*_rho[_qp]*vel*vel;
 }

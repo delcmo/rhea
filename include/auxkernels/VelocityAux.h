@@ -24,25 +24,18 @@ class VelocityAux;
 template<>
 InputParameters validParams<VelocityAux>();
 
-/**
- * Coupled auxiliary value
- */
 class VelocityAux : public AuxKernel
 {
 public:
 
-  /**
-   * Factory constructor, takes parameters so that all derived classes can be built using the same
-   * constructor.
-   */
   VelocityAux(const std::string & name, InputParameters parameters);
 
 protected:
   virtual Real computeValue();
 
-    // Coupled variables:
-    VariableValue & _rho;
-    VariableValue & _rhou;
+  // Coupled variables:
+  VariableValue & _rho;
+  VariableValue & _rhou;
 };
 
 #endif //VelocityAux_H

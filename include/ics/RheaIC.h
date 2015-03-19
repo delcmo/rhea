@@ -12,28 +12,46 @@
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
 
-#ifndef RHEATIMEDERIVATIVE
-#define RHEATIMEDERIVATIVE
+#ifndef RHEAIC_H
+#define RHEAIC_H
 
-#include "TimeDerivative.h"
+// MOOSE Includes
+#include "InitialCondition.h"
+#include "IdealGasEquationOfState.h"
+#include "ComputeICsRadHydro.h"
 
-class RheaTimeDerivative;
+// Forward Declarations
+class RheaIC;
 
 template<>
-InputParameters validParams<RheaTimeDerivative>();
+InputParameters validParams<RheaIC>();
 
-class RheaTimeDerivative : public TimeDerivative
+/**
+ * RheaIC just returns a constant value.
+ */
+class RheaIC : public InitialCondition
 {
 public:
 
-  RheaTimeDerivative(const std::string & name,
-                        InputParameters parameters);
+  /**
+   * Constructor: Same as the rest of the MOOSE Objects
+   */
+  RheaIC(const std::string & name,
+            InputParameters parameters);
 
-protected:
-  virtual Real computeQpResidual();
+  virtual Real value(const Point & p);
 
-  virtual Real computeQpJacobian();
+private:
 
+  // Position of the membrane:
+  Real _membrane;
+  Real _length;
+
+  // Equation of state:
+  const IdealGasEquationOfState & _eos;
+
+  // Userobject computing the ICs
+  const ComputeICsRadHydro & _ics;
 };
 
-#endif
+#endif // RHEAIC_H

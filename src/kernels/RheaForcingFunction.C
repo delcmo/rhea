@@ -42,7 +42,7 @@ RheaForcingFunction::RheaForcingFunction(const std::string & name,
     _a(getParam<Real>("a")),
     _sigma_t(getParam<Real>("sigma_t0")),
     // Equation of state:
-    _eos(getUserObject<EquationOfState>("eos")),
+    _eos(getUserObject<IdealGasEquationOfState>("eos")),
     // Material property: viscosity coefficient.
     _sigma_a(getMaterialProperty<Real>("sigma_a")),
     _D(getMaterialProperty<Real>("diffusion")),

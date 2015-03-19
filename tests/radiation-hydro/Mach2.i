@@ -6,26 +6,21 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-viscosity_name = ENTROPY
 isRadiation = false
 
 ###### Constans #######
 speed_of_light = 299.792
 a = 1.372e-2
-sigma_a0 = 4.1e+004 # 3.9071164263502113e+004
-sigma_t0 = 8.5314410158161813e+000
+#sigma_a0 = '3.9071164263502113e+002 0. 0.'
+#sigma_t0 = '8.5314410158161813e+002 0. 0.'
 
 ###### Initial Conditions #######
-rho_init_left = 1.
-rho_init_right = 3.5979106530611014
-vel_init_left = 5.8566201857385288e+001
-vel_init_right = 1.6277836640428294e+001 
-temp_init_left = 1.
-temp_init_right = 8.5571992184757608e+000
-p_init_left = 82.32
-p_init_right = 390.9772444
-eps_init_left = 1.3720000000000000e-002
-eps_init_right = 7.3566599630083758e-001
+Mach_inlet = 2.
+rho_hat_0 = 1.
+T_hat_0 = 0.1
+P = 1e-4
+K = 1
+SIGMA_A = 1e6
 membrane = 0.
 []
 
@@ -37,13 +32,15 @@ membrane = 0.
 
 [UserObjects]
   [./eos]
-    type = EquationOfState
+    type = IdealGasEquationOfState
   	gamma = 1.6666667
-  	Pinf = 0.
-  	q = 0.
-  	Cv = 1.2348000000000001e+2
-  	q_prime = 0.
+  	Cv = 1.2348000000000001e-001
   [../]
+  
+  [./ics]
+    type = ComputeICsRadHydro
+    eos = eos
+  [../]  
 
   [./JumpGradPress]
     type = JumpGradientInterface
@@ -51,19 +48,19 @@ membrane = 0.
     jump_name = jump_grad_press
   [../]
 
-[./JumpGradDens]
+  [./JumpGradDens]
     type = JumpGradientInterface
     variable = rho
     jump_name = jump_grad_dens
-[../]
+  [../]
 []
 
 ###### Mesh #######
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 2000
-  xmin = -9.040524501451145667e-2
+  nx = 200
+  xmin = -2.e-2
   xmax = 2.e-2
   block_id = '0'
 []
@@ -77,37 +74,41 @@ membrane = 0.
   [./rho]
     family = LAGRANGE
     scaling = 1e+0
-	[./InitialCondition]
-        type = InitialConditions
-        eos = eos
-	[../]
+    [./InitialCondition]
+      type = RheaIC
+      eos = eos
+      ics = ics
+    [../]
   [../]
 
   [./rhou]
     family = LAGRANGE
     scaling = 1e+0
-	[./InitialCondition]
-        type = InitialConditions
-        eos = eos
-	[../]
+    [./InitialCondition]
+      type = RheaIC
+      eos = eos
+      ics = ics
+    [../]
   [../]
 
   [./rhoE]
     family = LAGRANGE
     scaling = 1e+0
-	[./InitialCondition]
-        type = InitialConditions
-        eos = eos
-	[../]
+    [./InitialCondition]
+      type = RheaIC
+      eos = eos
+      ics = ics
+    [../]
   [../]
 
   [./epsilon]
     family = LAGRANGE
     scaling = 1e+0
-      [./InitialCondition]
-        type = InitialConditions
-        eos = eos
-      [../]
+    [./InitialCondition]
+      type = RheaIC
+      eos = eos
+      ics = ics            
+    [../]
    [../]
 []
 
@@ -120,22 +121,22 @@ membrane = 0.
 [Kernels]
 
   [./MassTime]
-    type = RheaTimeDerivative
+    type = TimeDerivative
     variable = rho
   [../]
 
   [./MomTime]
-    type = RheaTimeDerivative
+    type = TimeDerivative
     variable = rhou
   [../]
 
   [./EnerTime]
-    type = RheaTimeDerivative
+    type = TimeDerivative
     variable = rhoE
   [../]
 
   [./EpsilonTime]
-    type = RheaTimeDerivative
+    type = TimeDerivative
     variable = epsilon
   [../]
 
@@ -148,65 +149,52 @@ membrane = 0.
   [./MomHyperbloic]
     type = RheaMomentum
     variable = rhou
-    velocity = velocity
-    pressure = pressure
+    rho = rho
+    rhoE = rhoE
     radiation = epsilon
+    eos = eos
   [../]
 
   [./EnergyHyperbolic]
     type = RheaEnergy
     variable = rhoE
-    velocity = velocity
-    temperature = temperature
-    pressure = pressure
+    rho = rho
+    rhou = rhou
     radiation = epsilon
+    eos = eos
   [../]
 
   [./RadiationHyperbolic]
     type = RheaRadiation
     variable = epsilon
-    velocity = velocity
-    temperature = temperature
+    rho = rho
+    rhou = rhou
+    rhoE = rhoE
+    eos = eos
   [../]
 
   [./MassVisc]
     type = RheaArtificialVisc
     variable = rho
-    equation_name = CONTINUITY
-    density = rho
-    internal_energy = internal_energy
-    velocity = velocity
-    radiation = epsilon
+    equation_name = continuity
   [../]
 
   [./MomVisc]
     type = RheaArtificialVisc
     variable = rhou
-    equation_name = MOMENTUM
-    density = rho
-    internal_energy = internal_energy
-    velocity = velocity
-    radiation = epsilon
+    equation_name = x_momentum
   [../]
 
   [./EnergyVisc]
     type = RheaArtificialVisc
     variable = rhoE
-    equation_name = ENERGY
-    density = rho
-    internal_energy = internal_energy
-    velocity = velocity
-    radiation = epsilon
+    equation_name = energy
   [../]
 
   [./RadiationVisc]
     type = RheaArtificialVisc
     variable = epsilon
-    equation_name = RADIATION
-    density = rho
-    internal_energy = internal_energy
-    velocity = velocity
-    radiation = epsilon
+    equation_name = radiation
   [../]
 []
 
@@ -216,14 +204,6 @@ membrane = 0.
 # Define the auxilary variables                                                              #
 ##############################################################################################
 [AuxVariables]
-   [./velocity]
-      family = LAGRANGE
-   [../]
-
-   [./internal_energy]
-      family = LAGRANGE
-   [../]
-
    [./pressure]
       family = LAGRANGE
    [../]
@@ -245,12 +225,7 @@ membrane = 0.
     order = CONSTANT
   [../]
 
-    [./jump_grad_dens]
-        family = MONOMIAL
-        order = CONSTANT
-    [../]
-
-  [./mu_max]
+  [./jump_grad_dens]
     family = MONOMIAL
     order = CONSTANT
   [../]
@@ -260,12 +235,22 @@ membrane = 0.
     order = CONSTANT
   [../]
 
-  [./mu]
+  [./kappa]
     family = MONOMIAL
     order = CONSTANT
   [../]
 
-  [./kappa]
+  [./diffusion]
+    family = MONOMIAL
+    order = CONSTANT
+  [../]
+
+  [./sigma_a]
+    family = MONOMIAL
+    order = CONSTANT
+  [../]
+
+  [./sigma_t]
     family = MONOMIAL
     order = CONSTANT
   [../]
@@ -277,21 +262,6 @@ membrane = 0.
 # Define the auxilary kernels for liquid and gas phases. Same index as for variable block.   #
 ##############################################################################################
 [AuxKernels]
- [./VelocityAK]
-    type = VelocityAux
-    variable = velocity
-    rho = rho
-    rhou = rhou
-  [../]
-
-  [./IntEnerAK]
-    type = InternalEnergyAux
-    variable = internal_energy
-    rho = rho
-    rhou = rhou
-    rhoE = rhoE
-  [../]
-
   [./PressureAK]
     type = PressureAux
     variable = pressure
@@ -304,15 +274,16 @@ membrane = 0.
   [./TemperatureAK]
     type = TemperatureAux
     variable = temperature
-    pressure = pressure
     rho = rho
+    rhou = rhou
+    rhoE = rhoE
     eos = eos
   [../]
 
   [./RadTempAK]
     type = RadTempAux
     variable = rad_temp
-    temperature = temperature
+    radiation = epsilon
   [../]
 
   [./MachNumberAK]
@@ -320,14 +291,9 @@ membrane = 0.
     variable = mach_number
     rho = rho
     rhou = rhou
-    pressure = pressure
+    rhoE = rhoE
+    epsilon = epsilon
     eos = eos
-  [../]
-
-  [./MuMaxAK]
-    type = MaterialRealAux
-    variable = mu_max
-    property = mu_max
   [../]
 
   [./KappaMaxAK]
@@ -336,16 +302,28 @@ membrane = 0.
     property = kappa_max
   [../]
 
-  [./MuAK]
-    type = MaterialRealAux
-    variable = mu
-    property = mu
-  [../]
-
   [./KappaAK]
     type = MaterialRealAux
     variable = kappa
     property = kappa
+  [../]
+
+  [./DiffusionAK]
+    type = MaterialRealAux
+    variable = diffusion
+    property = diffusion
+  [../]
+
+  [./SigmaA_AK]
+  type = MaterialRealAux
+    variable = sigma_a
+    property = sigma_a
+  [../]
+
+  [./SigmaT_AK]
+  type = MaterialRealAux
+    variable = sigma_t
+    property = sigma_t
   [../]
 []
 
@@ -356,128 +334,85 @@ membrane = 0.
 ##############################################################################################
 
 [Materials]
-  [./ViscCoeff]
-    type = ComputeMaterials
+  [./EntViscCoeff]
+    type = EntropyViscosityCoefficient
     block = '0'
-    velocity = velocity
-    pressure = pressure
-    density = rho
+    rho = rho
+    rhou = rhou
     epsilon = epsilon
+    pressure = pressure
     jump_press = jump_grad_press
     jump_dens = jump_grad_dens
-    epsilon_PPS_name = AverageEpsilon
-    velocity_PPS_name = AverageVelocity
+    Cjump = 1.
+    is_first_order_viscosity = false
     eos = eos
-    Ce = 1.2
+  [../]
+
+  [./PhysicalPropertyMaterial]
+    type = PhysicalPropertyMaterial
+    block = '0'
+    rho = rho
+    pressure = pressure
+    eos = eos
   [../]
 []
 
-##############################################################################################
-#                                     PPS                                                    #
-##############################################################################################
-# Define functions that are used in the kernels and aux. kernels.                            #
-##############################################################################################
-[Postprocessors]
-
-[./AverageVelocity]
-    type = ElementAverageValue
-    variable = velocity
-[../]
-
-[./AverageEpsilon]
-    type = ElementAverageValue
-    variable = epsilon
-[../]
-
-[]
 ##############################################################################################
 #                               BOUNDARY CONDITIONS                                          #
 ##############################################################################################
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 [BCs]
-  [./MassLeft]
-    type = DirichletBC
-    variable = rho
-    value = 1.
-    boundary = 'left'
-  [../]
-
   [./MassRight]
     type = RheaBCs
     variable = rho
-    equation_name = CONTINUITY
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
+    equation_name = continuity
+    rho = rho
+    rhou = rhou
     epsilon = epsilon
+    pressure = pressure
     eos = eos
-    p_bc = 2534.471307
-    boundary = 'right'
-  [../]
-
-  [./MomentumLeft]
-    type = DirichletBC
-    variable = rhou
-    value = 5.8566201857385288e+001
-    boundary = 'left'
+    ics = ics    
+    boundary = 'right left'
   [../]
 
   [./MomentumRight]
     type = RheaBCs
     variable = rhou
-    equation_name = MOMENTUM
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
+    equation_name = x_momentum
+    rho = rho
+    rhou = rhou
     epsilon = epsilon
+    pressure = pressure
     eos = eos
-    p_bc = 2534.471307
-    boundary = 'right'
-  [../]
-
-  [./EnergyLeft]
-    type = DirichletBC
-    variable = rhoE
-    value = 1.8384800000000000e+003
-    boundary = 'left'
+    ics = ics
+    boundary = 'right left'
   [../]
 
   [./EnergyRight]
     type = RheaBCs
     variable = rhoE
-    equation_name = ENERGY
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
+    equation_name = energy
+    rho = rho
+    rhou = rhou
     epsilon = epsilon
+    pressure = pressure
     eos = eos
-    p_bc = 2534.471307
-    boundary = 'right'
+    ics = ics
+    boundary = 'right left'
   [../]
-
+  
   [./RadiationLeft]
-#    type = DirichletBC
-#    value = 1.3720000000000000e-002
     type = RheaBCs
     variable = epsilon
-    equation_name = RADIATION
-    velocity = velocity
-    density = rho
+    equation_name = radiation
+    rho = rho
+    rhou = rhou
+    epsilon = epsilon
     pressure = pressure
     eos = eos
-    p_bc = 2534.471307
-    boundary = 'left'
-  [../]
-
-  [./RadiationRight]
-    type = DirichletBC
-    variable = epsilon
-    value = 7.3566599630083758e+001 
-    boundary = 'right'
+    ics = ics
+    boundary = 'right left'
   [../]
 []
 
@@ -492,9 +427,10 @@ membrane = 0.
   [./FDP_Newton]
     type = FDP
     full = true
-    petsc_options = '-snes_mf_operator -snes_ksp_ew'
-    petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
-    petsc_options_value = '1.e-12       ds             ds'
+    solve_type = 'PJFNK'
+    #petsc_options = '-snes_mf_operator -snes_ksp_ew'
+    #petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
+    #petsc_options_value = '1.e-12       ds             ds'
   [../]
 []
 
@@ -506,20 +442,20 @@ membrane = 0.
 
 [Executioner]
   type = Transient
-  string scheme = 'bdf2'
-#num_steps = 2000
-  end_time = 0.05
-  dt = 1.e-6
+  scheme = 'bdf2'
+  end_time = 1.
+  dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
   nl_rel_tol = 1e-10
-  nl_abs_tol = 1e-6
+  nl_abs_tol = 1e-7
   l_max_its = 50
   nl_max_its = 50
+  num_steps = 20  
   [./TimeStepper]
     type = FunctionDT
-    time_t =  '0.     1e-3    1.'
-    time_dt = '1e-8   1e-4    1e-4'
+    time_t =  '0.     1.e-2   1.e-1  1.'
+    time_dt = '1.e-4  1.e-4   1.e-3  1.e-3'
   [../]
 []
 
@@ -529,13 +465,10 @@ membrane = 0.
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 
-[Output]
-  #file_base = Mach5_bis4
+[Outputs]
   output_initial = true
-  interval = 50
+  interval = 1
   exodus = true
-  postprocessor_screen = false
-  perf_log = true
 []
 
 ##############################################################################################

@@ -1,0 +1,13 @@
+[Tests]
+  [./1d-shock-tube]
+    type = 'Exodiff'
+    input = 'shock-tube.i'
+    exodiff = 'shock-tube_out.e'
+  [../]
+
+  [./1d-shock-tube-fo]
+    type = 'Exodiff'
+    input = 'shock-tube-fo.i'
+    exodiff = 'shock-tube-fo_out.e'
+  [../]
+[]

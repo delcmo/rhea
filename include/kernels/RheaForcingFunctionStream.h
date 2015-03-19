@@ -16,7 +16,7 @@
 #define RHEAFORCINGFUNCTIONSTREAM_H
 
 #include "Kernel.h"
-#include "EquationOfState.h"
+#include "IdealGasEquationOfState.h"
 
 // Forward Declarations
 class RheaForcingFunctionStream;
@@ -61,7 +61,7 @@ private:
     const Real & _sigma_t;
     
     // Equation of state:
-    const EquationOfState & _eos;
+    const IdealGasEquationOfState & _eos;
     
     // Material property: viscosity coefficient.
     MaterialProperty<Real> & _sigma_a;

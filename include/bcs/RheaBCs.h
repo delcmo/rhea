@@ -2,7 +2,8 @@
 #define RHEABCS_H
 
 #include "IntegratedBC.h"
-#include "EquationOfState.h"
+#include "IdealGasEquationOfState.h"
+#include "ComputeICsRadHydro.h"
 
 // Forward Declarations
 class RheaBCs;
@@ -24,52 +25,40 @@ protected:
   virtual Real computeQpJacobian();
   virtual Real computeQpOffDiagJacobian(unsigned jvar);
 
-    enum EFlowEquationType
-    {
-        CONTINUITY = 0,
-        MOMENTUM = 1,
-        ENERGY = 2,
-        RADIATION = 3
-    };
-    
-    // Boolean for coupled velocity
-    bool _isVel;
+  // Pre-shock parameters
+  Real _press_hat_pre;
 
-    // Eqn. name to be read from input file
-    std::string _eqn_name;
-    
-    // which equation (mass/momentum/energy) this BC is acting on
-    MooseEnum _eqn_type;
-    
-    // Coupled aux variables
-    VariableValue & _vel;
-    VariableValue & _rho;
-    VariableValue & _pressure;
-    VariableValue & _epsilon;
-    VariableValue & _vel_old;
-    VariableValue & _rho_old;
-    VariableValue & _pressure_old;
-    
-    // Specified pressure
-    Real _p_bc;
-    
-    // Specified temperature
-    Real _T_bc;
-    
-    // Specified velocity:
-    Real _v_bc;
-    
-    // Specified radiation:
-    Real _eps_left;
-    Real _eps_right;
-    Real _c_light;
-    
-    // Material property:
-    MaterialProperty<Real> & _D;
-    
-    // Equation of state
-    const EquationOfState & _eos;
+  // Post-shock parameters
+  Real _press_hat_post;
+
+  // Equation name
+  enum EFlowEquationType
+  {
+    continuity = 0,
+    x_momentum = 1,
+    energy = 2,
+    radiation = 3
+  };
+  MooseEnum _eqn_type;
+
+  // Coupled aux variables
+  VariableValue & _rho;
+  VariableValue & _rho_old;
+  VariableValue & _rhou;
+  VariableValue & _rhou_old;
+  VariableValue & _epsilon;
+  VariableValue & _epsilon_old;
+  VariableValue & _pressure;
+  VariableValue & _pressure_old;
+
+  // Material property:
+  MaterialProperty<Real> & _D;
+
+  // Equation of state
+  const IdealGasEquationOfState & _eos;
+
+  // Userobject computing the ICs
+  const ComputeICsRadHydro & _ics;
 };
 
 #endif // RHEABCS_H
-

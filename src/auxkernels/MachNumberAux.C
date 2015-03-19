@@ -23,8 +23,9 @@ InputParameters validParams<MachNumberAux>()
     // Conservative coupled variables:
     params.addRequiredCoupledVar("rho", "density");
     params.addRequiredCoupledVar("rhou", "momentum");
+    params.addRequiredCoupledVar("rhoE", "energy");
+    params.addCoupledVar("epsilon", "radiation");
     // Aux coupled variables:
-    params.addRequiredCoupledVar("pressure", "pressure");
     params.addRequiredParam<UserObjectName>("eos", "Equation of state");
   return params;
 }
@@ -34,21 +35,25 @@ MachNumberAux::MachNumberAux(const std::string & name, InputParameters parameter
     // Coupled variables
     _rho(coupledValue("rho")),
     _rhou(coupledValue("rhou")),
-    // Aux coupled variables:
-    _pressure(coupledValue("pressure")),
+    _rhoE(coupledValue("rhoE")),
+    _epsilon(isCoupled("epsilon") ? coupledValue("epsilon") : _zero),
     // User Objects for eos
     _eos(getUserObject<EquationOfState>("eos"))
-{}
+{
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
+}
 
 Real
 MachNumberAux::computeValue()
 {
-    // Compute the velocity:
-    Real _vel = _rhou[_qp] / _rho[_qp];
-    
-    // Computes the speed of sounds:
-    Real _c2 = _eos.c2_from_p_rho(_rho[_qp], _pressure[_qp]);
+  // Compute the velocity:
+  Real vel = _rhou[_qp] / _rho[_qp];
 
-    // Return the value of the Mach number:
-    return std::fabs(_vel) / std::sqrt(_c2);
+  // Computes the speed of sounds:
+  Real pressure = _eos.pressure(_rho[_qp], vel, _rhoE[_qp]);
+  Real _c2 = _eos.c2_from_p_rho(_rho[_qp], pressure, _epsilon[_qp]);
+
+  // Return the value of the Mach number:
+  return std::fabs(vel) / std::sqrt(_c2);
 }

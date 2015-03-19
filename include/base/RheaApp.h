@@ -13,6 +13,10 @@ class RheaApp : public MooseApp
 public:
   RheaApp(const std::string & name, InputParameters parameters);
   virtual ~RheaApp();
+
+  static void registerApps();
+  static void registerObjects(Factory & factory);
+  static void associateSyntax(Syntax & syntax, ActionFactory & action_factory);
 };
 
 #endif /* RHEAAPP_H */

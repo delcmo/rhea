@@ -21,29 +21,34 @@ template<>
 InputParameters validParams<RheaMass>()
 {
   InputParameters params = validParams<Kernel>();
+  
   params.addRequiredCoupledVar("rhou", "momentum: rho*u");
+
   return params;
 }
 
 RheaMass::RheaMass(const std::string & name,
                        InputParameters parameters) :
   Kernel(name, parameters),
-  /// Coupled aux variables
-  _rhou(coupledValue("rhou"))
-{}
+    // Coupled aux variables
+    _rhou(coupledValue("rhou"))
+{
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
+}
 
 Real RheaMass::computeQpResidual()
 {
-    // Return the total expression for the continuity equation:
-    return -_rhou[_qp] * _grad_test[_i][_qp](0);
+  // Return
+  return -_rhou[_qp]*_grad_test[_i][_qp](0);
 }
 
 Real RheaMass::computeQpJacobian()
 {
-  return ( 0 );
+  return 0.;
 }
 
 Real RheaMass::computeQpOffDiagJacobian( unsigned int _jvar)
 { 
-    return ( 0 );
+  return 0.;
 }

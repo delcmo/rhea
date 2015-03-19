@@ -20,30 +20,37 @@ template<>
 InputParameters validParams<PressureAux>()
 {
   InputParameters params = validParams<AuxKernel>();
+
+  // Coupled variables
   params.addRequiredCoupledVar("rho", "density");
   params.addRequiredCoupledVar("rhou", "momentum");
   params.addRequiredCoupledVar("rhoE", "material total energy");
+  // Euqation of state
   params.addRequiredParam<UserObjectName>("eos", "Equation of state");
+  
   return params;
 }
 
 PressureAux::PressureAux(const std::string & name, InputParameters parameters) :
     AuxKernel(name, parameters),
-  // Coupled variables
+    // Coupled variables
     _rho(coupledValue("rho")),
     _rhou(coupledValue("rhou")),
     _rhoE(coupledValue("rhoE")),
-  // User Objects for eos
+    // User Objects for eos
     _eos(getUserObject<EquationOfState>("eos"))
 
-{}
+{
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
+}
 
 Real
 PressureAux::computeValue()
 {
-    // Computes the density, the norm of the velocity and the total energy:
-    Real _vel = _rhou[_qp] / _rho[_qp];
-    
-    // Computes the pressure
-    return _eos.pressure(_rho[_qp], _vel, _rhoE[_qp]);
+  // Computes the density, the norm of the velocity and the total energy:
+  Real vel = _rhou[_qp] / _rho[_qp];
+
+  // Computes the pressure
+  return _eos.pressure(_rho[_qp], vel, _rhoE[_qp]);
 }

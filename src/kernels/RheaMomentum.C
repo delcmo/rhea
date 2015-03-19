@@ -21,36 +21,47 @@ template<>
 InputParameters validParams<RheaMomentum>()
 {
   InputParameters params = validParams<Kernel>();
-    // Material values:
-    params.addRequiredCoupledVar("velocity", "velocity");
-    params.addRequiredCoupledVar("pressure", "pressure");
-    // Radiation value:
-    params.addCoupledVar("radiation", "radiation");
+
+  // Coupled values:
+  params.addRequiredCoupledVar("rho", "fluid density");
+  params.addRequiredCoupledVar("rhoE", "fluid total energy");
+  params.addCoupledVar("radiation", "radiation");
+  // Equation of state
+  params.addRequiredParam<UserObjectName>("eos", "Equation of state");
+  
   return params;
 }
 
 RheaMomentum::RheaMomentum(const std::string & name,
                        InputParameters parameters) :
   Kernel(name, parameters),
-    // Material values:
-    _vel(coupledValue("velocity")),
-    _pressure(coupledValue("pressure")),
-    // Radiation value:
-    _epsilon(isCoupled("radiation") ? coupledValue("radiation") : _zero)
-{}
+    // Coupled values:
+    _rho(coupledValue("rho")),
+    _rhoE(coupledValue("rhoE")),
+    _epsilon(isCoupled("radiation") ? coupledValue("radiation") : _zero),
+    // Equation of state
+    _eos(getUserObject<EquationOfState>("eos"))
+{
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
+}
 
 Real RheaMomentum::computeQpResidual()
 {
-    // Return the total expression for the continuity equation:
-    return -( _u[_qp]*_vel[_qp] + _pressure[_qp] + _epsilon[_qp]/3 ) * _grad_test[_i][_qp](0);
+  // Compute velocity and pressure
+  Real vel = _u[_qp]/_rho[_qp];
+  Real pressure = _eos.pressure(_rho[_qp], vel, _rhoE[_qp]);
+
+  // Return
+  return -(_u[_qp]*vel + pressure + _epsilon[_qp]/3)*_grad_test[_i][_qp](0);
 }
 
 Real RheaMomentum::computeQpJacobian()
 {
-  return ( 0 );
+  return 0.;
 }
 
 Real RheaMomentum::computeQpOffDiagJacobian( unsigned int _jvar)
 { 
-    return ( 0 );
+  return 0.;
 }

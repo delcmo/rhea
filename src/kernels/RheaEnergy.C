@@ -21,54 +21,62 @@ template<>
 InputParameters validParams<RheaEnergy>()
 {
   InputParameters params = validParams<Kernel>();
-    // Material values:
-    params.addRequiredCoupledVar("velocity", "velocity");
-    params.addCoupledVar("temperature", "temperature");
-    params.addRequiredCoupledVar("pressure", "pressure");
-    // Radiation value:
-    params.addCoupledVar("radiation", "radiation");
-    // Constant:
-    params.addRequiredParam<Real>("speed_of_light", "speed of light");
-    params.addRequiredParam<Real>("a", "a");
+
+  // Coupled values:
+  params.addRequiredCoupledVar("rhou", "fluid momentum");
+  params.addRequiredCoupledVar("rho", "fluid density");
+  params.addCoupledVar("radiation", "radiation");  
+  // Equation of state
+  params.addRequiredParam<UserObjectName>("eos", "Equation of state");
+  // Constant:
+  params.addParam<Real>("speed_of_light", 299.792, "speed of light");
+  params.addParam<Real>("a", 1.372e-2, "Boltzman constant");
+
   return params;
 }
 
 RheaEnergy::RheaEnergy(const std::string & name,
                        InputParameters parameters) :
   Kernel(name, parameters),
-    // Material values:
-    _vel(coupledValue("velocity")),
-    _temp(isCoupled("temperature") ? coupledValue("temperature") : _zero),
-    _pressure(coupledValue("pressure")),
-    // Radiation value:
+    // Coupled values:
+    _rho(coupledValue("rho")),
+    _rhou(coupledValue("rhou")),
     _epsilon(isCoupled("radiation") ? coupledValue("radiation") : _zero),
     _grad_eps(isCoupled("radiation") ?  coupledGradient("radiation") : _grad_zero),
+    // Equation of state
+    _eos(getUserObject<EquationOfState>("eos")),
     // Material property:
     _sigma_a(getMaterialProperty<Real>("sigma_a")),
     // Constant:
     _c(getParam<Real>("speed_of_light")),
     _a(getParam<Real>("a"))
-{}
+{
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
+}
 
 Real RheaEnergy::computeQpResidual()
 {
-    // Convection term:
-    Real _conv = _vel[_qp]*(_u[_qp]+_pressure[_qp]);
-    
-    // Relaxation term:
-    Real _temp4 = _temp[_qp]*_temp[_qp]*_temp[_qp]*_temp[_qp];
-    Real _rel = _sigma_a[_qp] * _c * (_a*_temp4-_epsilon[_qp]);
-    
-    // Return the total expression for the continuity equation:
-    return -_conv*_grad_test[_i][_qp](0) + (_rel+_vel[_qp]*_grad_eps[_qp](0)/3)*_test[_i][_qp];
+  // Convection term:
+  Real vel = _rhou[_qp] / _rho[_qp];
+  Real pressure = _eos.pressure(_rho[_qp], vel, _u[_qp]);
+  Real conv = vel*(_u[_qp]+pressure);
+
+  // Relaxation term:
+  Real temp = _eos.temperature(_rho[_qp], vel, _u[_qp]);
+  Real temp4 = temp*temp*temp*temp;
+  Real relaxation = _sigma_a[_qp]*_c*(_a*temp4-_epsilon[_qp]);
+
+  // Return the flux:
+  return -conv*_grad_test[_i][_qp](0) + (relaxation+vel*_grad_eps[_qp](0)/3)*_test[_i][_qp];
 }
 
 Real RheaEnergy::computeQpJacobian()
 {
-  return ( 0 );
+  return 0.;
 }
 
 Real RheaEnergy::computeQpOffDiagJacobian( unsigned int _jvar)
 { 
-    return ( 0 );
+  return 0.;
 }

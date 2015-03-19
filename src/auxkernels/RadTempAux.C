@@ -22,20 +22,27 @@ template<>
 InputParameters validParams<RadTempAux>()
 {
   InputParameters params = validParams<AuxKernel>();
-    params.addRequiredCoupledVar("temperature", "temperature");
-    params.addRequiredParam<Real>("a", "a");
+  // Coupled values
+  params.addRequiredCoupledVar("radiation", "radiation");
+  // Constant
+  params.addParam<Real>("a", 1.372e-2, "Boltzman constant");
   return params;
 }
 
 RadTempAux::RadTempAux(const std::string & name, InputParameters parameters) :
     AuxKernel(name, parameters),
-  // Coupled variables
-   _temperature(coupledValue("temperature")),
-   _a(getParam<Real>("a"))
-{}
+    // Coupled variables
+    _eps(coupledValue("radiation")),
+    // Constant
+    _a(getParam<Real>("a"))
+{
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
+}
 
 Real
 RadTempAux::computeValue()
 {
-    return std::pow(_temperature[_qp]/_a, 0.25);
+  // Return
+  return std::pow(_eps[_qp]/_a, 0.25);
 }

@@ -14,21 +14,18 @@
 
 #include "RheaArtificialVisc.h"
 /**
-This function computes the dissipative terms for all of the equations. It is dimension agnostic.
+This function computes the dissipative terms for all of the equations. It only works in 1-D
  */
 template<>
 InputParameters validParams<RheaArtificialVisc>()
 {
   InputParameters params = validParams<Kernel>();
-    // Equation and diffusion names:
-    params.addParam<std::string>("equation_name", "INVALID", "Name of the equation.");
-    // Boolean for dissipation in radiation equation:
-    params.addParam<bool>("isRadiation", false, "boolean for dissipation in radiation equation.");
-    // Material variables:
-    params.addRequiredCoupledVar("density", "density");
-    params.addRequiredCoupledVar("internal_energy", "internal energy");
-    params.addRequiredCoupledVar("velocity", "velocity");
-    params.addCoupledVar("radiation", "radiation");
+
+  // Equation name:
+  params.addParam<std::string>("equation_name", "invalid", "Name of the equation.");
+  // Boolean for dissipation in radiation equation:
+  params.addParam<bool>("isRadiation", false, "boolean for dissipation in radiation equation.");
+
   return params;
 }
 
@@ -36,52 +33,39 @@ RheaArtificialVisc::RheaArtificialVisc(const std::string & name,
                        InputParameters parameters) :
   Kernel(name, parameters),
     // Declare equation types
-    _equ_name(getParam<std::string>("equation_name")),
-    _equ_type("CONTINUITY, MOMENTUM, ENERGY, RADIATION, INVALID", "INVALID"),
+    _equ_type("continuity x_momentum energy radiation invalid", getParam<std::string>("equation_name")),
     // Boolean:
     _isRadiation(getParam<bool>("isRadiation")),
-    // Material variables:
-    _rho(coupledValue("density")),
-    _grad_rho(coupledGradient("density")),
-    _vel(coupledValue("velocity")),
-    _grad_vel(coupledGradient("velocity")),
-    _grad_rhoe(coupledGradient("internal_energy")),
-    // Radiation variable:
-    _grad_epsilon(isCoupled("radiation") ? coupledGradient("radiation") : _grad_zero),
-    // Material property: viscosity coefficient.
-    _mu(getMaterialProperty<Real>("mu")),
-    _kappa(getMaterialProperty<Real>("kappa"))
+    // Material properties:
+    _kappa(getMaterialProperty<Real>("kappa")),
+    _D(getMaterialProperty<Real>("diffusion"))
 {
-    _equ_type = _equ_name;
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
 }
 
 Real RheaArtificialVisc::computeQpResidual()
 {
-    // Determine if cell is on boundary or not and then compute a unit vector 'l=grad(norm(vel))/norm(grad(norm(vel)))':
-    Real _isOnBoundary = 1.;
-    if( _current_elem->node(_i) == 0 || _current_elem->node(_i) == _mesh.nNodes()-1 )
-        _isOnBoundary = 1.;
-
-    // If statement on diffusion type:
-    Real _f = _kappa[_qp]*_grad_rho[_qp](0);
-    Real _g = _mu[_qp]*_rho[_qp]*_grad_vel[_qp](0);
-    Real _vel2 = _vel[_qp]*_vel[_qp];
-    switch (_equ_type) {
-        case CONTINUITY:
-            return _isOnBoundary*_f*_grad_test[_i][_qp](0);
-            break;
-        case MOMENTUM:
-            return _isOnBoundary*(_g+_vel[_qp]*_f)*_grad_test[_i][_qp](0);
-            break;
-        case ENERGY:
-            return _isOnBoundary*(_kappa[_qp]*_grad_rhoe[_qp](0) + 0.5*_vel2*_f + _vel[_qp]*_g)*_grad_test[_i][_qp](0);
-            break;
-        case RADIATION:
-            return (double)_isRadiation*_isOnBoundary*_kappa[_qp]*_grad_epsilon[_qp](0)*_grad_test[_i][_qp](0);
-            break;
-        default:
-            mooseError("INVALID equation name.");
-    }
+  switch (_equ_type)
+  {
+  case continuity:
+    return _kappa[_qp]*_grad_u[_qp]*_grad_test[_i][_qp];
+    break;
+  case x_momentum:
+    return _kappa[_qp]*_grad_u[_qp]*_grad_test[_i][_qp];
+    break;
+  case energy:
+    return _kappa[_qp]*_grad_u[_qp]*_grad_test[_i][_qp];
+    break;
+  case radiation:
+    if (_isRadiation && _kappa[_qp]>_D[_qp])
+      return _kappa[_qp]*_grad_u[_qp]*_grad_test[_i][_qp];
+    else
+      return 0.;
+    break;
+  default:
+      mooseError("INVALID equation name.");
+  }
 }
 
 Real RheaArtificialVisc::computeQpJacobian()

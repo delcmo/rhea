@@ -5,60 +5,90 @@ template<>
 InputParameters validParams<EquationOfState>()
 {
   InputParameters params = validParams<UserObject>();
-    params.addParam<Real>("gamma", 0, "  gamma");
-    params.addParam<Real>("Pinf", 0, "  P infinity");
-    params.addParam<Real>("q", 0, "  q coefficient");
-    params.addParam<Real>("q_prime", 0, "  q' coefficient");
-    params.addParam<Real>("Cv", 0, "  heat capacity at constant volume");
-    return params;
+  return params;
 }
 
 EquationOfState::EquationOfState(const std::string & name, InputParameters parameters) :
-  GeneralUserObject(name, parameters),
-    _gamma(getParam<Real>("gamma")),
-    _Pinf(getParam<Real>("Pinf")),
-    _qcoeff(getParam<Real>("q")),
-    _qcoeff_prime(getParam<Real>("q_prime")),
-    _Cv(getParam<Real>("Cv"))
+    GeneralUserObject(name, parameters)
 {}
 
 EquationOfState::~EquationOfState()
 {
-  // Destructor, empty
 }
 
-void
-EquationOfState::destroy()
+// The pressure as a function of the conservative variables
+Real EquationOfState::pressure(Real, Real, Real) const
 {
+  this->error_not_implemented("pressure");
+  return 0.;
 }
 
-Real EquationOfState::pressure(Real rho, Real vel, Real rhoE) const
+// The temperature as a function of the conservative variables
+Real EquationOfState::temperature(Real, Real, Real) const
 {
-  Real _e = ( rhoE - 0.5 * rho*vel*vel ) / rho;
-  return ( (_gamma-1) * ( _e - _qcoeff) * rho - _gamma * _Pinf );
+  this->error_not_implemented("temperature");
+  return 0.;
 }
 
-Real EquationOfState::rho_from_p_T(Real pressure, Real temperature) const
+// The density as a function of pressure and temperature
+Real EquationOfState::rho_from_p_T(Real, Real) const
 {
-    return ( (pressure + _Pinf) / ((_gamma-1)*_Cv*temperature) );
+  this->error_not_implemented("rho from pressure and temperature");
+  return 0.;
 }
 
-Real EquationOfState::e_from_p_rho(Real pressure, Real rho) const
+// The temperature as a function of pressure and density
+Real EquationOfState::e_from_p_rho(Real, Real) const
 {
-    return ( (pressure + _gamma*_Pinf) / ((_gamma-1)*rho) + _qcoeff );
+  this->error_not_implemented("temperature");
+  return 0.;
 }
 
-Real EquationOfState::temperature_from_p_rho(Real pressure, Real rho) const
+// The temperature as a function of pressure and density
+Real EquationOfState::temperature_from_p_rho(Real, Real) const
 {
-    return ( (pressure + _Pinf) / ((_gamma-1)*_Cv*rho) );
+  this->error_not_implemented("temperature");
+  return 0.;
 }
 
-Real EquationOfState::c2_from_p_rho(Real rho, Real pressure) const
-{
-    return ( _gamma * ( pressure + _Pinf ) / rho );
-}
-
+// pressure from temperature and density
 Real EquationOfState::p_from_T_rho(Real temperature, Real rho) const
 {
-    return ( temperature*(_gamma-1)*_Cv*rho - _Pinf);
+  this->error_not_implemented("p_from_T_rho");
+  return 0.;
+}
+
+// The derivative of pressure wrt rho
+Real EquationOfState::dp_drho(Real, Real, Real) const
+{
+  this->error_not_implemented("dp_drho");
+  return 0.;
+}
+
+// The derivative of pressure wrt rhou
+Real EquationOfState::dp_drhou(Real, Real, Real) const
+{
+  this->error_not_implemented("dp_drhou");
+  return 0.;
+}
+
+// Sound speed square
+Real
+EquationOfState::c2(Real, Real, Real, Real) const
+{
+  this->error_not_implemented("c2");
+  return 0.;
+}
+
+// Sound speed square
+Real
+EquationOfState::c2_from_p_rho(Real, Real, Real) const
+{
+  this->error_not_implemented("c2");
+  return 0.;
+}
+
+void EquationOfState::error_not_implemented(std::string method_name) const
+{
+  mooseError("Your EquationOfState object does not implement: " + method_name);
 }

@@ -1,0 +1,25 @@
+[Tests]
+  [./1d-mach-1p05]
+    type = 'Exodiff'
+    input = 'Mach1p05.i'
+    exodiff = 'Mach1p05_out.e'
+  [../]
+
+  [./1d-mach-1p2]
+    type = 'Exodiff'
+    input = 'Mach1p2.i'
+    exodiff = 'Mach1p2_out.e'
+  [../]
+
+  [./1d-mach2]
+    type = 'Exodiff'
+    input = 'Mach2.i'
+    exodiff = 'Mach2_out.e'
+  [../]
+
+  [./1d-mach5]
+    type = 'Exodiff'
+    input = 'Mach5.i'
+    exodiff = 'Mach5_out.e'
+  [../]
+[]

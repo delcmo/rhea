@@ -11,35 +11,45 @@
 /*                                                              */
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
-/**
-This function aims at computing the Temperature at the nodes and its gradient. This auxiliary variable is coupled
-to rho_bar, m_bar and E_bar defined as the product of the usual density, momentum and energy, and the cross section
-A computed by the function AreaFunction.
-**/
+
 #include "TemperatureAux.h"
 
 template<>
 InputParameters validParams<TemperatureAux>()
 {
   InputParameters params = validParams<AuxKernel>();
-  params.addRequiredCoupledVar("pressure", "pressure");
-  params.addRequiredCoupledVar("rho", "density: rho");;
+
+  // Coupled values
+  params.addRequiredCoupledVar("rho", "density");
+  params.addRequiredCoupledVar("rhou", "momentum");
+  params.addRequiredCoupledVar("rhoE", "energy");
+  // Equation of state
   params.addRequiredParam<UserObjectName>("eos", "The parameters for the eos.");
+
   return params;
 }
 
 TemperatureAux::TemperatureAux(const std::string & name, InputParameters parameters) :
     AuxKernel(name, parameters),
-  // Coupled variables
-   _pressure(coupledValue("pressure")),
-   _rho(coupledValue("rho")),
-  // User Objects for eos
-   _eos(getUserObject<EquationOfState>("eos"))
-{}
+    // Coupled variables
+    _rho(coupledValue("rho")),
+    _rhou(coupledValue("rhou")),
+    _rhoE(coupledValue("rhoE")),
+    // User Objects for eos
+    _eos(getUserObject<EquationOfState>("eos"))
+{
+  if (_mesh.dimension()!=1)
+    mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
+}
 
 /** Overwrite the function computevalue() */
 Real
 TemperatureAux::computeValue()
 {
-    return _eos.temperature_from_p_rho(_pressure[_qp], _rho[_qp]);
+  // Compute pressure
+  Real vel = _rhou[_qp]/_rho[_qp];
+  Real pressure = _eos.pressure(_rho[_qp], vel, _rhoE[_qp]);
+
+  // Return
+  return _eos.temperature_from_p_rho(pressure, _rho[_qp]);
 }

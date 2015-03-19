@@ -20,7 +20,7 @@ template<>
 InputParameters validParams<RheaForcingFunctionStream>()
 {
   InputParameters params = validParams<Kernel>();
-    // Equation and diffusion names:
+    // Equation name:
     params.addParam<std::string>("equation_name", "INVALID", "Name of the equation.");
     // Constants
     params.addRequiredParam<Real>("speed_of_light", "value of the speed of light.");
@@ -42,7 +42,7 @@ RheaForcingFunctionStream::RheaForcingFunctionStream(const std::string & name,
     _a(getParam<Real>("a")),
     _sigma_t(getParam<Real>("sigma_t0")),
     // Equation of state:
-    _eos(getUserObject<EquationOfState>("eos")),
+    _eos(getUserObject<IdealGasEquationOfState>("eos")),
     // Material property: viscosity coefficient.
     _sigma_a(getMaterialProperty<Real>("sigma_a")),
     _D(getMaterialProperty<Real>("diffusion")),

@@ -32,19 +32,18 @@ class MachNumberAux : public AuxKernel
 {
 public:
 
-  /**
-   * Factory constructor, takes parameters so that all derived classes can be built using the same
-   * constructor.
-   */
   MachNumberAux(const std::string & name, InputParameters parameters);
 
 protected:
   virtual Real computeValue();
 
-    VariableValue & _rho;
-    VariableValue & _rhou;
-    VariableValue & _pressure;
-    const EquationOfState & _eos;
+  // Coupled variables
+  VariableValue & _rho;
+  VariableValue & _rhou;
+  VariableValue & _rhoE;
+  VariableValue & _epsilon;
+  // Equation of state
+  const EquationOfState & _eos;
 };
 
 #endif //MachNumberAux_H

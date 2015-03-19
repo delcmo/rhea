@@ -6,27 +6,30 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
+isRadiation = true
 
 ###### Constans #######
-speed_of_light = 299.792
-a = 1.372e-2
-sigma_a0 = 3.9071164263502112e+002
-sigma_t0 = 8.5314410158161809e+002
+speed_of_light = 0.
+a = 0.
+cross_section_name = temp_dpt
+sigma_a0 = '0. 0. 0.'
+sigma_t0 = '2.e+003 0. 0.'
+rho_hat_0 = 1.
+T_hat_0 = 1.
+K = 1.
+SIGMA_A = 1.
+P = 1.
 
 ###### Initial Conditions #######
 rho_init_left = 1.
 rho_init_right = 1.
-vel_init_left = 1.2298902390050911e-001
-vel_init_right = 1.2298902390050911e-001
-temp_init_left = 1.0000000000000001e-001
-temp_init_right = 1.0000000000000001e-001
-eps_init_left = 2
-p_init_left = 8.232e-03
-p_init_right = 8.232e-03
-eps_init_right = 2
+vel_init_left = 2.
+vel_init_right = 2.
+temp_init_left = 1.
+temp_init_right = 1.
+eps_init_left = 10.
+eps_init_right = 1.
 membrane = 0.5
-eps_left = 0.
-eps_right = 0.
 []
 
 #############################################################################
@@ -37,14 +40,22 @@ eps_right = 0.
 
 [UserObjects]
   [./eos]
-    type = EquationOfState
-  	gamma = 1.6666667
-  	Pinf = 0.
-  	q = 0.
-  	Cv = 1.2348000000000001e-001
-  	q_prime = 0.
+    type = IdealGasEquationOfState
+  	gamma = 1.4
+  	Cv = 2.5
   [../]
 
+  [./JumpGradPress]
+    type = JumpGradientInterface
+    variable = pressure
+    jump_name = jump_grad_press
+  [../]
+
+  [./JumpGradDens]
+    type = JumpGradientInterface
+    variable = rho
+    jump_name = jump_grad_dens
+  [../]
 []
 
 ###### Mesh #######
@@ -52,8 +63,8 @@ eps_right = 0.
   type = GeneratedMesh
   dim = 1
   nx = 200
-  xmin = 0
-  xmax = 1
+  xmin = 0.
+  xmax = 1.
   block_id = '0'
 []
 
@@ -63,10 +74,9 @@ eps_right = 0.
 # Define the variables we want to solve for: l=liquid phase,  g=vapor phase.#
 #############################################################################
 [Variables]
-
   [./epsilon]
     family = LAGRANGE
-    scaling = 1e+2
+    scaling = 1e+0
       [./InitialCondition]
         type = InitialConditions
         eos = eos
@@ -81,17 +91,24 @@ eps_right = 0.
 ############################################################################################################
 
 [Kernels]
-
   [./EpsilonTime]
-    type = RheaTimeDerivative
+    type = TimeDerivative
     variable = epsilon
   [../]
 
   [./RadiationHyperbolic]
     type = RheaRadiation
     variable = epsilon
-    velocity = velocity
-    temperature = temperature
+    rho = rho
+    rhou = rhou
+    rhoE = rhoE
+    eos = eos
+  [../]
+
+  [./RadiationVisc]
+    type = RheaArtificialVisc
+    variable = epsilon
+    equation_name = radiation
   [../]
 []
 
@@ -101,36 +118,56 @@ eps_right = 0.
 # Define the auxilary variables                                                              #
 ##############################################################################################
 [AuxVariables]
-   [./velocity]
+   [./rho]
       family = LAGRANGE
       [./InitialCondition]
         type = ConstantIC
-        value = 0.
+        value = 1.
       [../]
    [../]
 
-  [./temperature]
+   [./rhou]
     family = LAGRANGE
-    [./InitialCondition]
-    type = ConstantIC
-    value = 0.
-    [../]
+      [./InitialCondition]
+        type = ConstantIC
+        value = 2.
+      [../]
+   [../]
+   
+   [./rhoE]
+    family = LAGRANGE
+      [./InitialCondition]
+        type = ConstantIC
+        value = 1.
+      [../]
+   [../]
+   
+   [./pressure]
+    family = LAGRANGE
+      [./InitialCondition]
+        type = ConstantIC
+        value = 1.
+      [../]
+   [../]
+
+  [./jump_grad_dens]
+    family = MONOMIAL
+    order = CONSTANT
   [../]
 
-  [./pressure]
-    family = LAGRANGE
-    [./InitialCondition]
-    type = ConstantIC
-    value = 1.
-    [../]
+  [./jump_grad_press]
+    family = MONOMIAL
+    order = CONSTANT
   [../]
 
-  [./rho]
-    family = LAGRANGE
-    [./InitialCondition]
-    type = ConstantIC
-    value = 1.
-    [../]
+  [./kappa]
+    family = MONOMIAL
+    order = CONSTANT
+  [../]
+  
+  [./kappa_max]
+    family = MONOMIAL
+    order = CONSTANT
   [../]
 []
 
@@ -140,6 +177,17 @@ eps_right = 0.
 # Define the auxilary kernels for liquid and gas phases. Same index as for variable block.   #
 ##############################################################################################
 [AuxKernels]
+  [./KappaAK]
+    type = MaterialRealAux
+    variable = kappa
+    property = kappa
+  [../]
+  
+  [./KappaMaxAK]
+    type = MaterialRealAux
+    variable = kappa_max
+    property = kappa_max
+  [../]
 []
 
 ##############################################################################################
@@ -147,39 +195,28 @@ eps_right = 0.
 ##############################################################################################
 # Define functions that are used in the kernels and aux. kernels.                            #
 ##############################################################################################
-
 [Materials]
-  [./ViscCoeff]
-    type = ComputeMaterials
+  [./EntViscCoeff]
+    type = EntropyViscosityCoefficient
     block = '0'
-    velocity = velocity
-    pressure = pressure
-    density = rho
+    rho = rho
+    rhou = rhou
     epsilon = epsilon
-    pressure_PPS_name = AveragePressure
-    velocity_PPS_name = AverageVelocity
+    pressure = pressure
+    jump_press = jump_grad_press
+    jump_dens = jump_grad_dens
+    Cjump = 10.
+    is_first_order_viscosity = false
     eos = eos
-    Ce = 1.
   [../]
-[]
 
-##############################################################################################
-#                                     PPS                                                    #
-##############################################################################################
-# Define functions that are used in the kernels and aux. kernels.                            #
-##############################################################################################
-[Postprocessors]
-
-[./AverageVelocity]
-    type = ElementAverageValue
-    variable = velocity
-[../]
-
-[./AveragePressure]
-    type = ElementAverageValue
-    variable = pressure
-[../]
-
+  [./PhysicalPropertyMaterial]
+    type = PhysicalPropertyMaterial
+    block = '0'
+    rho = rho
+    pressure = pressure
+    eos = eos
+  [../]
 []
 ##############################################################################################
 #                               BOUNDARY CONDITIONS                                          #
@@ -187,35 +224,20 @@ eps_right = 0.
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 [BCs]
-  [./RadiationLeft]
-    type = RheaBCs
+  [./RadiationRight]
+    type = DirichletBC
     variable = epsilon
-    equation_name = RADIATION
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
-    eos = eos
-    p_bc = 8.232e-03
-    T_bc = 1.0000000000000001e-001
-    v_bc = 1.2298902390050911e-001
+    value = 10.
     boundary = 'left'
   [../]
-
-  [./RadiationRight]
-    type = RheaBCs
+  
+  [./RadiationLeft]
+    type = DirichletBC
     variable = epsilon
-    equation_name = RADIATION
-    velocity = velocity
-    temperature = temperature
-    density = rho
-    pressure = pressure
-    eos = eos
-    p_bc = 8.232e-03
+    value = 1.
     boundary = 'right'
   [../]
 []
-
 ##############################################################################################
 #                                  PRECONDITIONER                                            #
 ##############################################################################################
@@ -227,12 +249,10 @@ eps_right = 0.
   [./FDP_Newton]
     type = FDP
     full = true
-    petsc_options = '-snes_mf_operator -snes_ksp_ew'
-    petsc_options_iname = '-mat_fd_coloring_err'
-    petsc_options_value = '1.e-13'#'1.e-12'
-    #petsc_options = '-snes_mf_operator -ksp_converged_reason -ksp_monitor -snes_ksp_ew' 
-    #petsc_options_iname = '-pc_type'
-    #petsc_options_value = 'lu'
+    solve_type = 'PJFNK'
+#petsc_options = '-snes_mf_operator -snes_ksp_ew'
+#petsc_options_iname = '-mat_fd_coloring_err  -mat_fd_type  -mat_mffd_type'
+#petsc_options_value = '1.e-12       ds             ds'
   [../]
 []
 
@@ -243,26 +263,22 @@ eps_right = 0.
 ##############################################################################################
 
 [Executioner]
-  type = Transient   # Here we use the Transient Executioner
-  #scheme = 'explicit-euler'
-  string scheme = 'bdf2'
-  #petsc_options = '-snes'
-  #petsc_options_iname = '-pc_type'
-  #petsc_options_value = 'lu'
-  num_steps = 10
-  #end_time = 200
-  dt = 1e-1
+  type = Transient
+  scheme = 'bdf2'
+  end_time = 1.
+  dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
-  nl_rel_tol = 1e-6
-  nl_abs_tol = 1e-6
-  l_max_its = 50
-  nl_max_its = 50
-#  [./TimeStepper]
-#    type = FunctionDT
-#    time_t =  '0.     2.6e-2  5.e-1  0.56'
-#    time_dt = '1e-4   1e-4    1e-3    1e-3'
-#  [../]
+  nl_rel_tol = 1e-10
+  nl_abs_tol = 1e-7
+  l_max_its = 10
+  nl_max_its = 10
+  num_steps = 25
+  [./TimeStepper]
+    type = FunctionDT
+    time_t =  '0.     1.'
+    time_dt = '1.e-5  1.e-5'
+  [../]
 []
 
 ##############################################################################################
@@ -271,12 +287,10 @@ eps_right = 0.
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 
-[Output]
+[Outputs]
   output_initial = true
   interval = 1
   exodus = true
-  postprocessor_screen = false
-  perf_log = true
 []
 
 ##############################################################################################

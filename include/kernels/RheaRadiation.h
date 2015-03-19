@@ -16,6 +16,7 @@
 #define RHEARADIATION_H
 
 #include "Kernel.h"
+#include "EquationOfState.h"
 
 class RheaRadiation;
 
@@ -37,17 +38,21 @@ protected:
   virtual Real computeQpOffDiagJacobian( unsigned int jvar );
 
 private:
-    // Material coupled variables:
-    VariableValue & _vel;
-    VariableValue & _temp;
-    
-    // Material properties:
-    MaterialProperty<Real> & _sigma_a;
-    MaterialProperty<Real> & _D;
-    
-    // Constant: speed of light.
-    Real _c;
-    Real _a;
+  // Coupled variables:
+  VariableValue & _rho;
+  VariableValue & _rhou;
+  VariableValue & _rhoE;
+
+  // Equation of state
+  const EquationOfState & _eos;
+
+  // Material properties:
+  MaterialProperty<Real> & _sigma_a;
+  MaterialProperty<Real> & _D;
+
+  // Constant: speed of light.
+  Real _c;
+  Real _a;
 };
 
 #endif // RHEARADIATION_H

@@ -34,9 +34,12 @@ public:
 protected:
   virtual Real computeValue();
 
-    VariableValue & _pressure;
-    VariableValue & _rho;
-    const EquationOfState & _eos;
+  // Coupled variables
+  VariableValue & _rho;
+  VariableValue & _rhou;
+  VariableValue & _rhoE;
+  // Equation of state
+  const EquationOfState & _eos;
 };
 
 #endif //TEMPERATUREAUX_H

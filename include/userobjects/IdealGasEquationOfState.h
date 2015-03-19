@@ -1,36 +1,29 @@
-#ifndef EQUATIONOFSTATE_H
-#define EQUATIONOFSTATE_H
+#ifndef IDEALGASEQUATIONOFSTATE_H
+#define IDEALGASEQUATIONOFSTATE_H
 
-#include "GeneralUserObject.h"
+#include "EquationOfState.h"
 
-// Forward Declarations
-class EquationOfState;
+class IdealGasEquationOfState;
 
 template<>
-InputParameters validParams<EquationOfState>();
+InputParameters validParams<IdealGasEquationOfState>();
 
-class EquationOfState : public GeneralUserObject
+class IdealGasEquationOfState : public EquationOfState
 {
 public:
   // Constructor
-  EquationOfState(const std::string & name, InputParameters parameters);
+  IdealGasEquationOfState(const std::string & name, InputParameters parameters);
 
-  // Destructor
-  virtual ~EquationOfState();
+  // Destructor  
+  virtual ~IdealGasEquationOfState(); 
 
-  /**
-   * Called when this object needs to compute something.
-   */
   virtual void execute() {};
 
-  /**
-   * Called before execute() is ever called so that data can be cleared.
-   */
-  virtual void initialize(){};
+  virtual void initialize() {};
 
-  /**
-   * Finalize.  This is called _after_ execute() and _after_ threadJoin()!  This is probably where you want to do MPI communication!
-   */
+
+  virtual void destroy();
+
   virtual void finalize() {};
 
   // The interface for derived EquationOfState objects to implement...
@@ -63,11 +56,13 @@ public:
   // Sound speed squared
   virtual Real c2_from_p_rho(Real rho, Real pressure, Real epsilon) const;
 
+  Real gamma() const { return _gamma; };
+
+  Real Cv() const { return _Cv; };
+
 protected:
-  // Prints an error message for non-implemented functions
-  void error_not_implemented(std::string method_name) const;
+  Real _gamma;
+  Real _Cv;
 };
 
-
-#endif // EQUATIONOFSTATE_H
-
+#endif // IDEALGASEQUATIONOFSTATE_H

@@ -16,6 +16,7 @@
 #define RADTEMPAUX_H
 
 #include "AuxKernel.h"
+#include "EquationOfState.h"
 
 //Forward Declarations
 class RadTempAux;
@@ -32,8 +33,10 @@ public:
 protected:
   virtual Real computeValue();
 
-    VariableValue & _temperature;
-    Real _a;
+  // Coupled variables
+  VariableValue & _eps;
+  // Constant
+  Real _a;
 };
 
 #endif //RADTEMPAUX_H

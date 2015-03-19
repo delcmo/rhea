@@ -1,0 +1,19 @@
+[Tests]
+  [./1d-radiation-diffusion]
+    type = 'Exodiff'
+    input = 'radiation-diffusion.i'
+    exodiff = 'radiation-diffusion_out.e'
+  [../]
+
+  [./1d-transport]
+    type = 'Exodiff'
+    input = 'transport.i'
+    exodiff = 'transport_out.e'
+  [../]
+
+  [./1d-transport-fo]
+    type = 'Exodiff'
+    input = 'transport-fo.i'
+    exodiff = 'transport-fo_out.e'
+  [../]
+[]

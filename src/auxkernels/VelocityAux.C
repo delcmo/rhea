@@ -11,17 +11,17 @@
 /*                                                              */
 /*            See COPYRIGHT for full restrictions               */
 /****************************************************************/
-/**
-This function computes the velocity components from the density 'rhoA' and the momentum components 'rhouA_{x,y or z}'. It is dimension agnostic.
-**/
+
 #include "VelocityAux.h"
 
 template<>
 InputParameters validParams<VelocityAux>()
 {
   InputParameters params = validParams<AuxKernel>();
+
   params.addRequiredCoupledVar("rho", "density");
   params.addRequiredCoupledVar("rhou", "momentum");
+
   return params;
 }
 

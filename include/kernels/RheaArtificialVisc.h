@@ -39,37 +39,22 @@ protected:
   virtual Real computeQpOffDiagJacobian(unsigned int _jvar);
     
 private:
-    // Equations types
-    enum EquationType
-    {
-        CONTINUITY = 0,
-        MOMENTUM = 1,
-        ENERGY = 2,
-        RADIATION = 3
-    };
+  // Equations types
+  enum EquationType
+  {
+      continuity = 0,
+      x_momentum = 1,
+      energy = 2,
+      radiation = 3
+  };
+  MooseEnum _equ_type;
 
-    // Diffusion name
-    std::string _equ_name;
-    
-    // Diffusion type
-    MooseEnum _equ_type;
-    
-    // Boolean for dissipation in radiation:
-    bool _isRadiation;
-    
-    // Material variables:
-    VariableValue & _rho;
-    VariableGradient & _grad_rho;
-    VariableValue & _vel;
-    VariableGradient & _grad_vel;
-    VariableGradient & _grad_rhoe;
-    
-    // Radiation variables:
-    VariableGradient & _grad_epsilon;
-    
-    // Material property: viscosity coefficient.
-    MaterialProperty<Real> & _mu;
-    MaterialProperty<Real> & _kappa;
+  // Boolean for dissipation in radiation:
+  bool _isRadiation;
+
+  // Material property:
+  MaterialProperty<Real> & _kappa;
+  MaterialProperty<Real> & _D;
 };
 
 #endif //RHEAARTIFICIALVISC_H

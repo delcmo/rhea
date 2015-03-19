@@ -31,10 +31,10 @@ public:
 protected:
   virtual Real computeValue();
 
-    // Coupled variables:
-    VariableValue & _rho;
-    VariableValue & _rhou;
-    VariableValue & _rhoE;
+  // Coupled variables:
+  VariableValue & _rho;
+  VariableValue & _rhou;
+  VariableValue & _rhoE;
 };
 
 #endif //INTERNALENERGYAUX_H
