@@ -37,6 +37,9 @@
 #include "PhysicalPropertyMaterial.h"
 #include "EntropyViscosityCoefficient.h"
 
+// Postprocessors
+#include "TimeStepCFL.h"
+
 template<>
 InputParameters validParams<RheaApp>()
 {
@@ -108,6 +111,9 @@ RheaApp::registerObjects(Factory & factory)
   // Materials
   registerMaterial(PhysicalPropertyMaterial);
   registerMaterial(EntropyViscosityCoefficient);
+
+  // Postprocessors
+  registerPostprocessor(TimeStepCFL);
 }
 
 void

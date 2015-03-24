@@ -29,6 +29,12 @@
     exodiff = 'Mach3-no-jump_out.e'
   [../]
 
+  [./1d-mach3-opacity]
+    type = 'Exodiff'
+    input = 'Mach3-opacity.i'
+    exodiff = 'Mach3-opacity_out.e'
+  [../]
+
   [./1d-mach5]
     type = 'Exodiff'
     input = 'Mach5.i'

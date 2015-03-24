@@ -23,11 +23,14 @@ private:
   // Cross-section types
   enum CrossSectionType
   {
-    constant = 0,
-    temp_dpt = 1,
-    opacity = 2
+    constant_cs = 0,
+    temp_dpt_cs = 1,
+    temp_dpt_opacity = 2
   };
-  MooseEnum _cs_type; 
+  MooseEnum _cs_type;
+
+  // Boolean for diffusion coefficient
+  bool _is_diffusion;
 
   // Coupled variables:
   VariableValue & _rho;
@@ -57,10 +60,13 @@ private:
   Real _sigma_hat_a;
   Real _sigma_hat_t;
 
+  // Constant opacity
+  Real _opacity_a;
+  Real _opacity_t;
+
   // Vector storing parameters for cross sections
   RealVectorValue _sigma_a0;
   RealVectorValue _sigma_t0;
-  Real _opacity;
 
   // Equation of state
   const EquationOfState & _eos;

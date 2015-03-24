@@ -9,9 +9,10 @@ order = FIRST
 isRadiation = true
 
 ###### Constans #######
-speed_of_light = 0.
-a = 0.
-cross_section_name = temp_dpt
+speed_of_light = 1.
+a = 1.
+cross_section_name = temp_dpt_cs
+is_diffusion = false
 sigma_a0 = '0. 0. 0.'
 sigma_t0 = '2.e+003 0. 0.'
 rho_hat_0 = 1.

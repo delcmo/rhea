@@ -8,14 +8,14 @@
 order = FIRST
 isRadiation = false
 Cjump = 1.
-is_first_order_viscosity = false
 use_jumps = false
 
 ###### Constans #######
 speed_of_light = 299.792
 a = 1.372e-2
-#sigma_a0 = '3.9071164263502113e+002 0. 0.'
-#sigma_t0 = '8.5314410158161813e+002 0. 0.'
+sigma_a0 = '57735.0 0. 3.5'
+sigma_t0 = '57735.0 0. 3.5'
+cross_section_name = temp_dpt_opacity
 
 ###### Initial Conditions #######
 Mach_inlet = 3.
@@ -62,9 +62,9 @@ membrane = 0.
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 400
-  xmin = -2.e-2
-  xmax = 1.e-2
+  nx = 600
+  xmin = -2.e-3
+  xmax = 2.e-3
   block_id = '0'
 []
 
@@ -436,6 +436,24 @@ membrane = 0.
 []
 
 ##############################################################################################
+#                                  POSTPROCESSORS                                            #
+##############################################################################################
+# Define the functions computing the inflow and outflow boundary conditions.                 #
+##############################################################################################
+
+[Postprocessors]
+  [./dt]
+    type = TimeStepCFL
+    rho = rho
+    rhou = rhou
+    rhoE = rhoE
+    radiation = epsilon
+    eos = eos
+    cfl = 1.
+  [../]
+[]
+
+##############################################################################################
 #                                     EXECUTIONER                                            #
 ##############################################################################################
 # Define the functions computing the inflow and outflow boundary conditions.                 #
@@ -444,7 +462,7 @@ membrane = 0.
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 1.
+  end_time = 2.2e-1
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
@@ -453,9 +471,12 @@ membrane = 0.
   l_max_its = 50
   nl_max_its = 50
   [./TimeStepper]
-    type = FunctionDT
-    time_t =  '0.     1.e-2   1.e-1  1.'
-    time_dt = '1.e-4  1.e-4   1.e-3  1.e-3'
+    type = PostprocessorDT
+    postprocessor = dt
+    dt = 1.e-8
+#    type = FunctionDT
+#    time_t =  '0.     1.e-2   1.e-1  1.'
+#    time_dt = '1.e-4  1.e-4   1.e-4  1.e-4'
   [../]
 []
 
