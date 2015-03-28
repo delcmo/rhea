@@ -19,6 +19,7 @@ T_hat_0 = 1.
 K = 1.
 SIGMA_A = 1.
 P = 1.
+Mach_inlet = 1.
 
 ###### Initial Conditions #######
 rho_init_left = 1.
@@ -44,6 +45,11 @@ membrane = 0.5
   	gamma = 1.6666667
   	Cv = 1.2348000000000001e-001
   [../]
+  
+  [./ics]
+    type = ComputeICsRadHydro
+    eos = eos
+  [../]  
 
   [./JumpGradPress]
     type = JumpGradientInterface
@@ -103,6 +109,7 @@ membrane = 0.5
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    ics = ics    
   [../]
 
   [./RadiationVisc]
@@ -227,6 +234,7 @@ membrane = 0.5
     rho = rho
     pressure = pressure
     eos = eos
+    ics = ics    
   [../]
 []
 ##############################################################################################

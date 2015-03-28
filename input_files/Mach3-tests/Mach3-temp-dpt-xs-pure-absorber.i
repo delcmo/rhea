@@ -7,13 +7,13 @@
 ###### Other parameters #######
 order = FIRST
 isRadiation = false
-Cjump = 1.1
+Cjump = 1.
 is_first_order_viscosity = false
 use_jumps = false
-cross_section_name = temp_dpt_opacity
 
-###### Constans #######
-speed_of_light = 299.792
+###### Constants #######
+cross_section_name = temp_dpt_opacity
+speed_of_light = 2.99792e+2
 a = 1.372e-2
 sigma_a0 = '12.5 0. 3.5'
 sigma_t0 = '12.5 0. 3.5'
@@ -22,9 +22,9 @@ sigma_t0 = '12.5 0. 3.5'
 Mach_inlet = 3.
 rho_hat_0 = 1.
 T_hat_0 = 0.1
-P = 1e-4
-K = 1
-SIGMA_A = 1e6
+P = 1.e-4
+K = 1.
+SIGMA_A = 1.e6
 membrane = 0.
 []
 
@@ -44,7 +44,7 @@ membrane = 0.
   [./ics]
     type = ComputeICsRadHydro
     eos = eos
-  [../]  
+  [../]
 
   [./JumpGradPress]
     type = JumpGradientInterface
@@ -63,9 +63,9 @@ membrane = 0.
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 200
-  xmin = -2.e-3
-  xmax = 2.e-3
+  nx = 1000
+  xmin = -2.e-2
+  xmax = 1.5e-2
   block_id = '0'
 []
 
@@ -440,6 +440,24 @@ membrane = 0.
 []
 
 ##############################################################################################
+#                                  POSTPROCESSORS                                            #
+##############################################################################################
+# Define the functions computing the inflow and outflow boundary conditions.                 #
+##############################################################################################
+
+[Postprocessors]
+  [./dt]
+    type = TimeStepCFL
+    rho = rho
+    rhou = rhou
+    rhoE = rhoE
+    radiation = epsilon
+    eos = eos
+    cfl = 1.
+  [../]
+[]
+
+##############################################################################################
 #                                     EXECUTIONER                                            #
 ##############################################################################################
 # Define the functions computing the inflow and outflow boundary conditions.                 #
@@ -456,11 +474,10 @@ membrane = 0.
   nl_abs_tol = 1e-7
   l_max_its = 50
   nl_max_its = 50
-  num_steps = 40
   [./TimeStepper]
-    type = FunctionDT
-    time_t =  '0.     1.e-2   1.e-1  1.'
-    time_dt = '1.e-5  1.e-5   1.e-5  1.e-5'
+    type = PostprocessorDT
+    postprocessor = dt
+    dt = 1.e-6
   [../]
 []
 
@@ -471,9 +488,17 @@ membrane = 0.
 ##############################################################################################
 
 [Outputs]
-  output_initial = true
-  interval = 1
-  exodus = true
+  [./console]
+  type = Console
+  perf_log = true
+  interval = 30
+  [../]
+  
+  [./out]
+    type = Exodus
+    interval = 30
+    output_initial = true    
+  [../]
 []
 
 ##############################################################################################

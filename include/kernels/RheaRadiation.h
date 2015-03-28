@@ -17,6 +17,7 @@
 
 #include "Kernel.h"
 #include "EquationOfState.h"
+#include "ComputeICsRadHydro.h"
 
 class RheaRadiation;
 
@@ -50,9 +51,8 @@ private:
   MaterialProperty<Real> & _sigma_a;
   MaterialProperty<Real> & _D;
 
-  // Constant: speed of light.
-  Real _c;
-  Real _a;
+  // Userobject computing the ICs
+  const ComputeICsRadHydro & _ics;
 };
 
 #endif // RHEARADIATION_H

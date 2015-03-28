@@ -40,7 +40,7 @@ membrane = 2.5e-2
   [./ics]
     type = ComputeICsRadHydro
     eos = eos
-  [../]  
+  [../]
 
   [./JumpGradPress]
     type = JumpGradientInterface
@@ -162,6 +162,7 @@ membrane = 2.5e-2
     rhou = rhou
     radiation = epsilon
     eos = eos
+    ics = ics
   [../]
 
   [./RadiationHyperbolic]
@@ -171,6 +172,7 @@ membrane = 2.5e-2
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    ics = ics    
   [../]
 
   [./MassVisc]
@@ -354,6 +356,7 @@ membrane = 2.5e-2
     rho = rho
     pressure = pressure
     eos = eos
+    ics = ics 
   [../]
 []
 

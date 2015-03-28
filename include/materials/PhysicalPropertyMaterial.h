@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "EquationOfState.h"
+#include "ComputeICsRadHydro.h"
 
 //Forward Declarations
 class PhysicalPropertyMaterial;
@@ -25,7 +26,8 @@ private:
   {
     constant_cs = 0,
     temp_dpt_cs = 1,
-    temp_dpt_opacity = 2
+    temp_dpt_opacity = 2,
+    pure_absorber = 3
   };
   MooseEnum _cs_type;
 
@@ -43,19 +45,6 @@ private:
   MaterialProperty<Real> & _sigma_t;
   MaterialProperty<Real> & _diffusion;
 
-  // Boltzman constant and speed of light:
-  Real _c;
-  Real _a;
-
-  // Non-dimensionalized parameters
-  Real _P;
-  Real _K;
-  Real _SIGMA_A;
-  
-  // Pre-shock parameters
-  Real _rho_hat_pre;
-  Real _T_hat_pre;
-
   // Constant cross-sections
   Real _sigma_hat_a;
   Real _sigma_hat_t;
@@ -70,6 +59,9 @@ private:
 
   // Equation of state
   const EquationOfState & _eos;
+
+  // Userobject computing the ICs
+  const ComputeICsRadHydro & _ics;
 };
 
 #endif // PHYSICALPRPERTYMATERIAL_H

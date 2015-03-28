@@ -46,7 +46,10 @@ public:
 
   // Non-dimensionalized functions
   Real P() const { return _P;};
+  Real K() const { return _K;};
+  Real SIGMA_A() const { return _SIGMA_A;};
   Real a() const { return _a;};
+  Real c() const { return _sp;};
 
 protected:
   // Physical properties
@@ -56,6 +59,8 @@ protected:
   // Non-dimensionalized numbers
   Real _P;
   Real _Mach_inlet;
+  Real _K;
+  Real _SIGMA_A;
 
   // Pre-shock parameters
   Real _rho_hat_pre;

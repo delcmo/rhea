@@ -18,6 +18,7 @@ SIGMA_A = 0.
 K = 1.
 rho_hat_0 = 1.
 T_hat_0 = 1.
+Mach_inlet = 1.
 
 ###### Initial Conditions #######
 rho_init_left = 3.
@@ -44,6 +45,11 @@ membrane = 0.5
     type = IdealGasEquationOfState
   	gamma = 1.4
   	Cv = 2.5
+  [../]
+
+  [./ics]
+    type = ComputeICsRadHydro
+    eos = eos
   [../]
 
   [./JumpGradPress]
@@ -146,6 +152,7 @@ membrane = 0.5
     rho = rho
     rhou = rhou
     eos = eos
+    ics = ics
   [../]
 
   [./MassVisc]
@@ -277,6 +284,7 @@ membrane = 0.5
     rho = rho
     pressure = pressure
     eos = eos
+    ics = ics    
   [../]
 []
 ##############################################################################################

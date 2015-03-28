@@ -7,24 +7,24 @@
 ###### Other parameters #######
 order = FIRST
 isRadiation = false
-Cjump = 1.1
+Cjump = 1.
 is_first_order_viscosity = false
 use_jumps = false
-cross_section_name = temp_dpt_opacity
 
-###### Constans #######
-speed_of_light = 299.792
+###### Constants #######
+cross_section_name = pure_absorber
+speed_of_light = 2.99792e+2
 a = 1.372e-2
-sigma_a0 = '12.5 0. 3.5'
-sigma_t0 = '12.5 0. 3.5'
+#sigma_a0 = '1.e+006 0. 3.5'
+#sigma_t0 = '1.e+006 0. 3.5'
 
 ###### Initial Conditions #######
 Mach_inlet = 3.
 rho_hat_0 = 1.
 T_hat_0 = 0.1
-P = 1e-4
-K = 1
-SIGMA_A = 1e6
+P = 1.e-4
+K = 1.
+SIGMA_A = 1.e6
 membrane = 0.
 []
 
@@ -44,7 +44,7 @@ membrane = 0.
   [./ics]
     type = ComputeICsRadHydro
     eos = eos
-  [../]  
+  [../]
 
   [./JumpGradPress]
     type = JumpGradientInterface
@@ -63,9 +63,9 @@ membrane = 0.
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 200
-  xmin = -2.e-3
-  xmax = 2.e-3
+  nx = 100
+  xmin = -1.31e-1
+  xmax = 1.31e-1
   block_id = '0'
 []
 
@@ -440,6 +440,24 @@ membrane = 0.
 []
 
 ##############################################################################################
+#                                  POSTPROCESSORS                                            #
+##############################################################################################
+# Define the functions computing the inflow and outflow boundary conditions.                 #
+##############################################################################################
+
+[Postprocessors]
+  [./dt]
+    type = TimeStepCFL
+    rho = rho
+    rhou = rhou
+    rhoE = rhoE
+    radiation = epsilon
+    eos = eos
+    cfl = 1.
+  [../]
+[]
+
+##############################################################################################
 #                                     EXECUTIONER                                            #
 ##############################################################################################
 # Define the functions computing the inflow and outflow boundary conditions.                 #
@@ -448,7 +466,7 @@ membrane = 0.
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 1.
+  end_time = 3.e-1
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
@@ -456,11 +474,33 @@ membrane = 0.
   nl_abs_tol = 1e-7
   l_max_its = 50
   nl_max_its = 50
-  num_steps = 40
+  num_steps = 2
   [./TimeStepper]
-    type = FunctionDT
-    time_t =  '0.     1.e-2   1.e-1  1.'
-    time_dt = '1.e-5  1.e-5   1.e-5  1.e-5'
+    type = PostprocessorDT
+    postprocessor = dt
+    dt = 1.e-8
+  [../]
+[]
+
+[Adaptivity]
+  initial_steps = 2
+#  cycles_per_step = 2
+  marker = marker
+  initial_marker = marker
+  max_h_level = 2
+  [./Indicators]
+    [./indicator]
+      type = GradientJumpIndicator
+      variable = rho
+    [../]
+  [../]
+  [./Markers]
+    [./marker]
+      type = ErrorFractionMarker
+      indicator = indicator
+      coarsen = 0.1
+      refine = 0.7
+    [../]
   [../]
 []
 

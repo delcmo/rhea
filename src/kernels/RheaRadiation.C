@@ -28,9 +28,8 @@ InputParameters validParams<RheaRadiation>()
   params.addRequiredCoupledVar("rhoE", "fluid total energy");  
   // Equation of state
   params.addRequiredParam<UserObjectName>("eos", "Equation of state");
-  // Constant:
-  params.addParam<Real>("speed_of_light", 299.792, "speed of light");
-  params.addParam<Real>("a", 1.372e-2, "Boltzman constant");
+  // Userobject computing the ICs
+  params.addRequiredParam<UserObjectName>("ics", "parameters for ics.");
 
   return params;
 }
@@ -47,9 +46,8 @@ RheaRadiation::RheaRadiation(const std::string & name,
     // Material property:
     _sigma_a(getMaterialProperty<Real>("sigma_a")),
     _D(getMaterialProperty<Real>("diffusion")),
-    // Constant:
-    _c(getParam<Real>("speed_of_light")),
-    _a(getParam<Real>("a"))
+    // Userobject computing the ICs
+    _ics(getUserObject<ComputeICsRadHydro>("ics"))
 {
   if (_mesh.dimension()!=1)
     mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
@@ -67,7 +65,7 @@ Real RheaRadiation::computeQpResidual()
   // Relaxation term:
   Real temp = _eos.temperature(_rho[_qp], vel, _rhoE[_qp]);
   Real temp4 = temp*temp*temp*temp;
-  Real relaxation = _sigma_a[_qp] * _c * (_a*temp4-_u[_qp]);
+  Real relaxation = _sigma_a[_qp] * _ics.c() * (_ics.a()*temp4-_u[_qp]);
 
   // Return the total expression for the continuity equation:
   return (-conv+diff)*_grad_test[_i][_qp](0) - (relaxation+vel*_grad_u[_qp](0)/3)*_test[_i][_qp];

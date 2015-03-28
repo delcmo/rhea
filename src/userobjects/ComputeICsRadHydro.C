@@ -12,6 +12,8 @@ InputParameters validParams<ComputeICsRadHydro>()
   params.addRequiredParam<Real>("a", "Boltzman constant");
   // Non-dimensionalized numbers
   params.addRequiredParam<Real>("P", "Ratio of radiant energy to material energy");
+  params.addParam<Real>("K", "Radiative diffusivity");
+  params.addParam<Real>("SIGMA_A", "Non-dimensionalized absorption cross-section");
   params.addRequiredParam<Real>("Mach_inlet", "Inlet Mach number");
   // Pre-schock conditions:
   params.addRequiredParam<Real>("rho_hat_0", "Non-dimensionalyzed pre-shock density");
@@ -32,6 +34,8 @@ ComputeICsRadHydro::ComputeICsRadHydro(const std::string & name, InputParameters
     // Non-dimensionalized numbers
     _P(getParam<Real>("P")),
     _Mach_inlet(getParam<Real>("Mach_inlet")),
+    _K(isParamValid("K") ? getParam<Real>("K") : 1.),
+    _SIGMA_A(isParamValid("SIGMA_A") ? getParam<Real>("SIGMA_A") : 0.),
     // Pre-shock parameters
     _rho_hat_pre(getParam<Real>("rho_hat_0")),
     _T_hat_pre(getParam<Real>("T_hat_0")),

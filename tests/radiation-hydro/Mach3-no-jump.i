@@ -165,6 +165,7 @@ membrane = 0.
     rhou = rhou
     radiation = epsilon
     eos = eos
+    ics = ics    
   [../]
 
   [./RadiationHyperbolic]
@@ -174,6 +175,7 @@ membrane = 0.
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    ics = ics
   [../]
 
   [./MassVisc]
@@ -355,6 +357,7 @@ membrane = 0.
     rho = rho
     pressure = pressure
     eos = eos
+    ics = ics    
   [../]
 []
 
