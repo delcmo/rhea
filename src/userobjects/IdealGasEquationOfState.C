@@ -30,8 +30,8 @@ IdealGasEquationOfState::destroy()
 
 Real IdealGasEquationOfState::pressure(Real rho, Real vel, Real rhoE) const
 {
-  Real _e = ( rhoE - 0.5 * rho*vel*vel ) / rho;
-  return (_gamma-1) * _e * rho;
+  Real rhoe = rhoE - 0.5 * rho*vel*vel;
+  return (_gamma-1) * rhoe;
 }
 
 Real IdealGasEquationOfState::temperature(Real rho, Real vel, Real rhoE) const
@@ -66,6 +66,26 @@ Real IdealGasEquationOfState::dp_drho(Real rho, Real rhou, Real rhoE) const
 }
 
 Real IdealGasEquationOfState::dp_drhou(Real rho, Real rhou, Real rhoE) const
+{
+  return 0.;
+}
+
+Real IdealGasEquationOfState::dp_drhoE(Real rho, Real rhou, Real rhoE) const
+{
+  return 0.;
+}
+
+Real IdealGasEquationOfState::dT_drho(Real rho, Real rhou, Real rhoE) const
+{
+  return 0.;
+}
+
+Real IdealGasEquationOfState::dT_drhou(Real rho, Real rhou, Real rhoE) const
+{
+  return 0.;
+}
+
+Real IdealGasEquationOfState::dT_drhoE(Real rho, Real rhou, Real rhoE) const
 {
   return 0.;
 }

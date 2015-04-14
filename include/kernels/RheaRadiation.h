@@ -53,6 +53,11 @@ private:
 
   // Userobject computing the ICs
   const ComputeICsRadHydro & _ics;
+
+  // Integers for jacobian terms
+  unsigned int _rho_nb;
+  unsigned int _rhou_nb;
+  unsigned int _rhoE_nb;
 };
 
 #endif // RHEARADIATION_H

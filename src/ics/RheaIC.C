@@ -48,7 +48,7 @@ RheaIC::RheaIC(const std::string & name,
   {
     std::cout<<"--------------------------------------------------------------"<<std::endl;
     std::cout<<"--------------------------------------------------------------"<<std::endl;
-    mooseWarning("'"<<this->name()<<"': different Cv coefficients computed. Cv_{computed}="<<Cv<<" and Cv_{eos}="<<_eos.Cv()<<".");
+    mooseWarning("'"<<this->name()<<"': different Cv coefficients computed. Relative error:"<<std::fabs((Cv-_eos.Cv())/Cv)<<". Cv_{computed}="<<Cv<<" and Cv_{eos}="<<_eos.Cv()<<".");
     std::cout<<"--------------------------------------------------------------"<<std::endl;
     std::cout<<"--------------------------------------------------------------"<<std::endl;    
   }

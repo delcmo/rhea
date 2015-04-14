@@ -72,6 +72,34 @@ Real EquationOfState::dp_drhou(Real, Real, Real) const
   return 0.;
 }
 
+// The derivative of pressure wrt rhoE
+Real EquationOfState::dp_drhoE(Real, Real, Real) const
+{
+  this->error_not_implemented("dp_drhoE");
+  return 0.;
+}
+
+// The derivative of temperature wrt rho
+Real EquationOfState::dT_drho(Real, Real, Real) const
+{
+  this->error_not_implemented("dT_drho");
+  return 0.;
+}
+
+// The derivative of temperature wrt rhou
+Real EquationOfState::dT_drhou(Real, Real, Real) const
+{
+  this->error_not_implemented("dT_drhou");
+  return 0.;
+}
+
+// The derivative of temperature wrt rhoE
+Real EquationOfState::dT_drhoE(Real, Real, Real) const
+{
+  this->error_not_implemented("dT_drhoE");
+  return 0.;
+}
+
 // Sound speed square
 Real
 EquationOfState::c2(Real, Real, Real, Real) const

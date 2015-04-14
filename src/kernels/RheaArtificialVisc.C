@@ -70,7 +70,7 @@ Real RheaArtificialVisc::computeQpResidual()
 
 Real RheaArtificialVisc::computeQpJacobian()
 {
-  return 0.;
+  return _kappa[_qp]*_grad_phi[_j][_qp](0)*_grad_test[_i][_qp](0);
 }
 
 Real RheaArtificialVisc::computeQpOffDiagJacobian( unsigned int _jvar)

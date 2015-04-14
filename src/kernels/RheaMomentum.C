@@ -40,7 +40,11 @@ RheaMomentum::RheaMomentum(const std::string & name,
     _rhoE(coupledValue("rhoE")),
     _epsilon(isCoupled("radiation") ? coupledValue("radiation") : _zero),
     // Equation of state
-    _eos(getUserObject<EquationOfState>("eos"))
+    _eos(getUserObject<EquationOfState>("eos")),
+    // Integers for jacobian terms
+    _rho_nb(coupled("rho")),
+    _rhoE_nb(coupled("rhoE")),
+    _epsilon_nb(coupled("epsilon"))
 {
   if (_mesh.dimension()!=1)
     mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
@@ -58,10 +62,39 @@ Real RheaMomentum::computeQpResidual()
 
 Real RheaMomentum::computeQpJacobian()
 {
-  return 0.;
+  // Compute velocity and pressure
+  Real vel = _u[_qp]/_rho[_qp];
+  Real pressure = _eos.dp_drhou(_rho[_qp], vel, _rhoE[_qp]);
+
+  // Return jacobian terms
+  return -(2.*vel+pressure)*_phi[_j][_qp]*_grad_test[_i][_qp](0);
 }
 
 Real RheaMomentum::computeQpOffDiagJacobian( unsigned int _jvar)
-{ 
-  return 0.;
+{
+  if (_jvar == _rho_nb) // material density
+  {
+    // Compute velocity and pressure
+    Real vel = _u[_qp]/_rho[_qp];
+    Real pressure = _eos.dp_drho(_rho[_qp], vel, _rhoE[_qp]);
+
+    // Return jacobian terms
+    return -(-vel*vel+pressure)*_phi[_j][_qp]*_grad_test[_i][_qp](0);
+  }
+  else if (_jvar == _rhoE_nb) // material total energy
+  {
+    // Compute velocity and pressure
+    Real vel = _u[_qp]/_rho[_qp];
+    Real pressure = _eos.dp_drhoE(_rho[_qp], vel, _rhoE[_qp]);
+
+    // Return jacobian terms
+    return -pressure*_phi[_j][_qp]*_grad_test[_i][_qp](0);
+  }
+  else if (_jvar == _epsilon_nb) // radiation
+  {
+    // Return jacobian term
+    return -_phi[_j][_qp]/3.*_grad_test[_i][_qp](0);
+  }
+  else
+    return 0.;
 }

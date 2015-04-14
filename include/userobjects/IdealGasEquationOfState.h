@@ -44,11 +44,23 @@ public:
   // pressure from temperature and density
   virtual Real p_from_T_rho(Real temperature, Real rho) const;
 
-  // The derivative of pressure wrt density (h)
+  // The derivative of pressure wrt density (rho)
   virtual Real dp_drho(Real rho, Real rhou, Real rhoE) const;
 
   // The derivative of pressure wrt x-momentum (rhou)
   virtual Real dp_drhou(Real rho, Real vel, Real rhoE) const;
+
+  // The derivative of pressure wrt energy (rhoE)
+  virtual Real dp_drhoE(Real rho, Real vel, Real rhoE) const;
+
+  // The derivative of temperature wrt density (rho)
+  virtual Real dT_drho(Real rho, Real rhou, Real rhoE) const;
+
+  // The derivative of temperature wrt x-momentum (rhou)
+  virtual Real dT_drhou(Real rho, Real vel, Real rhoE) const;
+
+  // The derivative of temperature wrt energy (rhoE)
+  virtual Real dT_drhoE(Real rho, Real vel, Real rhoE) const;
 
   // Sound speed squared
   virtual Real c2(Real rho, Real vel, Real rhoE, Real epsilon) const;

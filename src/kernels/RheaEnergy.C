@@ -47,7 +47,11 @@ RheaEnergy::RheaEnergy(const std::string & name,
     // Material property:
     _sigma_a(getMaterialProperty<Real>("sigma_a")),
     // Userobject computing the ICs
-    _ics(getUserObject<ComputeICsRadHydro>("ics"))
+    _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    // Integers for jacobian terms
+    _rho_nb(coupled("rho")),
+    _rhou_nb(coupled("rhou")),
+    _epsilon_nb(coupled("epsilon"))
 {
   if (_mesh.dimension()!=1)
     mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
@@ -71,10 +75,70 @@ Real RheaEnergy::computeQpResidual()
 
 Real RheaEnergy::computeQpJacobian()
 {
-  return 0.;
+  // Convection term:
+  Real vel = _rhou[_qp] / _rho[_qp];
+  Real pressure = _eos.dp_drhoE(_rho[_qp], vel, _u[_qp]);
+  Real conv = _phi[_j][_qp]*vel*(1.+pressure);
+
+  // Relaxation term:
+  Real temp = _eos.temperature(_rho[_qp], vel, _u[_qp]);
+  Real temp4 = 4*temp*temp*temp*_eos.dT_drhoE(_rho[_qp], vel, _u[_qp]);
+  Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_ics.c()*_ics.a()*temp4;
+
+  // Return jacobian term
+  return -conv*_grad_test[_i][_qp](0) + relaxation*_test[_i][_qp];
 }
 
 Real RheaEnergy::computeQpOffDiagJacobian( unsigned int _jvar)
-{ 
-  return 0.;
+{
+  if (_jvar == _rho_nb)
+  {
+    // Convection term:
+    Real vel = _rhou[_qp] / _rho[_qp];
+    Real pressure = _eos.pressure(_rho[_qp], vel, _u[_qp]);
+    Real conv = -vel/_rho[_qp]*(_u[_qp]+pressure);
+    pressure = _eos.dp_drho(_rho[_qp], vel, _u[_qp]);
+    conv += vel*pressure;
+    conv *= _phi[_j][_qp];
+
+    // Relaxation term:
+    Real temp = _eos.temperature(_rho[_qp], vel, _u[_qp]);
+    Real temp4 = 4*temp*temp*temp*_eos.dT_drho(_rho[_qp], vel, _u[_qp]);
+    Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_ics.c()*_ics.a()*temp4;
+
+    // Return jacobian term
+    return -conv*_grad_test[_i][_qp](0) + (relaxation - _phi[_j][_qp]*vel/_rho[_qp]*_grad_eps[_qp](0)/3. )*_test[_i][_qp];
+  }
+  else if (_jvar == _rhou_nb)
+  {
+    // Convection term:
+    Real vel = _rhou[_qp] / _rho[_qp];
+    Real pressure = _eos.pressure(_rho[_qp], vel, _u[_qp]);
+    Real conv = 1./_rho[_qp]*(_u[_qp]+pressure);
+    pressure = _eos.dp_drhou(_rho[_qp], vel, _u[_qp]);
+    conv += vel*pressure;
+    conv *= _phi[_j][_qp];
+
+    // Relaxation term:
+    Real temp = _eos.temperature(_rho[_qp], vel, _u[_qp]);
+    Real temp4 = 4*temp*temp*temp*_eos.dT_drhou(_rho[_qp], vel, _u[_qp]);
+    Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_ics.c()*_ics.a()*temp4;
+
+    // Return jacobian term
+    return -conv*_grad_test[_i][_qp](0) + (relaxation + _phi[_j][_qp]/_rho[_qp]*_grad_eps[_qp](0)/3. )*_test[_i][_qp];
+  }
+  else if (_jvar == _epsilon_nb)
+  {
+    // Convection term:
+    Real vel = _rhou[_qp] / _rho[_qp];    
+    Real conv = 0.;
+
+    // Relaxation term:
+    Real relaxation = -_phi[_j][_qp]*_sigma_a[_qp]*_ics.c()*_ics.a();
+
+    // Return jacobian term
+    return -conv*_grad_test[_i][_qp](0) + (relaxation + vel*_grad_phi[_j][_qp](0)/3. )*_test[_i][_qp];
+  }
+  else
+    return 0.;
 }

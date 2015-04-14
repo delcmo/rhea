@@ -40,7 +40,12 @@ RheaBCs::RheaBCs(const std::string & name, InputParameters parameters) :
     // Equation of state:
     _eos(getUserObject<IdealGasEquationOfState>("eos")),
     // Userobject computing the ICs
-    _ics(getUserObject<ComputeICsRadHydro>("ics"))
+    _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    // Integers for jacobian terms
+    _rho_nb(coupled("rho")),
+    _rhou_nb(coupled("rhou")),
+    _rhoE_nb(coupled("rhoE")),
+    _epsilon_nb(coupled("epsilon"))
 {
   // Compute press_hat_pre and press_hat_post
   _press_hat_pre = _eos.p_from_T_rho(_ics.T_hat_pre(), _ics.rho_hat_pre());

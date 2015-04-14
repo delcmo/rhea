@@ -59,7 +59,7 @@ membrane = 0.
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 400
+  nx = 600
   xmin = -4.e-2
   xmax = 4.e-2
   block_id = '0'
@@ -162,6 +162,7 @@ membrane = 0.
     rhou = rhou
     radiation = epsilon
     eos = eos
+    ics = ics
   [../]
 
   [./RadiationHyperbolic]
@@ -171,6 +172,7 @@ membrane = 0.
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    ics = ics    
   [../]
 
   [./MassVisc]
@@ -354,6 +356,7 @@ membrane = 0.
     rho = rho
     pressure = pressure
     eos = eos
+    ics = ics
   [../]
 []
 

@@ -38,7 +38,10 @@ protected:
 
 private:
   // Coupled variables
-    VariableValue & _rhou;
+  VariableValue & _rhou;
+
+  // Integer for jacobian terms
+  unsigned int _rhou_nb;
 };
 
 #endif // RheaMass_H

@@ -45,6 +45,11 @@ private:
 
   // Equation of state
   const EquationOfState & _eos;
+
+  // Integers for jacobian terms
+  unsigned int _rho_nb;
+  unsigned int _rhoE_nb;
+  unsigned int _epsilon_nb;
 };
 
 #endif // RHEAMOMENTUM_H

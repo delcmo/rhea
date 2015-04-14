@@ -78,7 +78,7 @@ EntropyViscosityCoefficient::computeQpProperties()
 
   // Compute the jump:
   Real jump = _jump_press[_qp] + sp*sp*_jump_dens[_qp];
-  Real grad = std::fabs(_grad_press[_qp](0)) + sp*sp*_grad_rho[_qp](0);
+  Real grad = std::fabs(_grad_press[_qp](0)) + sp*sp*std::fabs(_grad_rho[_qp](0));
   Real jump_value = _use_jumps ? jump : grad;
   jump_value *= _Cjump*std::fabs(vel);
 
@@ -95,10 +95,11 @@ EntropyViscosityCoefficient::computeQpProperties()
   residual-=sp*sp*vel*_grad_rho[_qp](0);
 
   // Compute norm:
-  Real norm = std::min(_rho[_qp]*sp*sp, _press[_qp]);
+//  Real norm = std::min(_rho[_qp]*sp*sp, _press[_qp]);
+  Real norm = _rho[_qp]*sp*sp;
   
   // Compute high-order viscosity coefficient:
-  Real kappa_e = _t_step == 1 ? _kappa_max[_qp] : h_cell*h_cell*(std::fabs(residual) + jump_value) / norm;
+  Real kappa_e = _t_step == 1 ? _kappa_max[_qp] : h_cell*h_cell*(std::max(std::fabs(residual), jump_value)) / norm;
 
   // Get the value of the viscosity coefficients:
   _kappa[_qp] = _is_first_order_viscosity ? _kappa_max[_qp] : std::min( _kappa_max[_qp], kappa_e );

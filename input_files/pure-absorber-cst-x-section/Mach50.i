@@ -7,20 +7,24 @@
 ###### Other parameters #######
 order = FIRST
 isRadiation = false
+Cjump = 1.
+is_first_order_viscosity = false
+use_jumps = false
 
-###### Constans #######
-speed_of_light = 299.792
+###### Constants #######
+cross_section_name = pure_absorber
+speed_of_light = 2.99792e+2
 a = 1.372e-2
-#sigma_a0 = '3.9071164263502113e+002 0. 0.'
-#sigma_t0 = '8.5314410158161813e+002 0. 0.'
+#sigma_a0 = '1.e+006 0. 3.5'
+#sigma_t0 = '1.e+006 0. 3.5'
 
 ###### Initial Conditions #######
-Mach_inlet = 1.05
+Mach_inlet = 50.
 rho_hat_0 = 1.
-T_hat_0 = 0.1
-P = 1e-4
-K = 1
-SIGMA_A = 1e6
+T_hat_0 = 0.12156013625
+P = 1.e-4
+K = 1.
+SIGMA_A = 1.e6
 membrane = 0.
 []
 
@@ -34,7 +38,7 @@ membrane = 0.
   [./eos]
     type = IdealGasEquationOfState
   	gamma = 1.6666667
-  	Cv = 1.2348000000000001e-001
+  	Cv = 0.221804 # 1.2348000000000001e-001
   [../]
   
   [./ics]
@@ -60,8 +64,8 @@ membrane = 0.
   type = GeneratedMesh
   dim = 1
   nx = 200
-  xmin = -4e-2
-  xmax = 4.e-2
+  xmin = -1.e-1
+  xmax = 1.e-1
   block_id = '0'
 []
 
@@ -97,7 +101,7 @@ membrane = 0.
     [./InitialCondition]
       type = RheaIC
       eos = eos
-      ics = ics      
+      ics = ics
     [../]
   [../]
 
@@ -162,7 +166,7 @@ membrane = 0.
     rhou = rhou
     radiation = epsilon
     eos = eos
-    ics = ics    
+    ics = ics
   [../]
 
   [./RadiationHyperbolic]
@@ -345,8 +349,6 @@ membrane = 0.
     pressure = pressure
     jump_press = jump_grad_press
     jump_dens = jump_grad_dens
-    Cjump = 1.
-    is_first_order_viscosity = false
     eos = eos
   [../]
 
@@ -388,7 +390,7 @@ membrane = 0.
     epsilon = epsilon
     pressure = pressure
     eos = eos
-    ics = ics    
+    ics = ics
     boundary = 'right left'
   [../]
 
@@ -401,7 +403,7 @@ membrane = 0.
     epsilon = epsilon
     pressure = pressure
     eos = eos
-    ics = ics    
+    ics = ics
     boundary = 'right left'
   [../]
   
@@ -451,7 +453,7 @@ membrane = 0.
     rhoE = rhoE
     radiation = epsilon
     eos = eos
-    cfl = 1.
+    cfl = 2.
   [../]
 []
 
@@ -464,7 +466,7 @@ membrane = 0.
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 20.
+  end_time = 4.
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
@@ -486,9 +488,17 @@ membrane = 0.
 ##############################################################################################
 
 [Outputs]
-  output_initial = true
-  interval = 50
-  exodus = true
+  [./console]
+  type = Console
+  perf_log = true
+  interval = 20
+  [../]
+  
+  [./out]
+    type = Exodus
+    interval = 20
+    output_initial = true    
+  [../]
 []
 
 ##############################################################################################

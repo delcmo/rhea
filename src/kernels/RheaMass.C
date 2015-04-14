@@ -31,7 +31,9 @@ RheaMass::RheaMass(const std::string & name,
                        InputParameters parameters) :
   Kernel(name, parameters),
     // Coupled aux variables
-    _rhou(coupledValue("rhou"))
+    _rhou(coupledValue("rhou")),
+    // Integer for jacobian term
+    _rhou_nb(coupled("rhou"))
 {
   if (_mesh.dimension()!=1)
     mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");
@@ -49,6 +51,9 @@ Real RheaMass::computeQpJacobian()
 }
 
 Real RheaMass::computeQpOffDiagJacobian( unsigned int _jvar)
-{ 
-  return 0.;
+{
+  if (_jvar == _rhou_nb)
+    return -_phi[_j][_qp]*_grad_test[_i][_qp](0);
+  else
+    return 0.;
 }

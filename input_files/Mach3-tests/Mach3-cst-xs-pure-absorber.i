@@ -21,7 +21,7 @@ a = 1.372e-2
 ###### Initial Conditions #######
 Mach_inlet = 3.
 rho_hat_0 = 1.
-T_hat_0 = 0.1
+T_hat_0 = 0.12156013625
 P = 1.e-4
 K = 1.
 SIGMA_A = 1.e6
@@ -38,7 +38,7 @@ membrane = 0.
   [./eos]
     type = IdealGasEquationOfState
   	gamma = 1.6666667
-  	Cv = 1.2348000000000001e-001
+  	Cv = 0.221804 # 1.2348000000000001e-001
   [../]
   
   [./ics]
@@ -63,7 +63,7 @@ membrane = 0.
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 1000
+  nx = 500
   xmin = -2.e-2
   xmax = 1.5e-2
   block_id = '0'
@@ -491,12 +491,12 @@ membrane = 0.
   [./console]
   type = Console
   perf_log = true
-  interval = 30
+  interval = 20
   [../]
   
   [./out]
     type = Exodus
-    interval = 30
+    interval = 20
     output_initial = true    
   [../]
 []
