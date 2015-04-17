@@ -6,7 +6,6 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-isRadiation = true
 
 ###### Constans #######
 speed_of_light = 1.
@@ -29,7 +28,7 @@ vel_init_left = 2.
 vel_init_right = 2.
 temp_init_left = 1.
 temp_init_right = 1.
-eps_init_left = 10.
+eps_init_left = 3.
 eps_init_right = 1.
 membrane = 0.5
 []
@@ -158,6 +157,11 @@ membrane = 0.5
       [../]
    [../]
 
+  [./diffusion]
+    family = MONOMIAL
+    order = CONSTANT
+  [../]
+
   [./jump_grad_dens]
     family = MONOMIAL
     order = CONSTANT
@@ -185,6 +189,12 @@ membrane = 0.5
 # Define the auxilary kernels for liquid and gas phases. Same index as for variable block.   #
 ##############################################################################################
 [AuxKernels]
+  [./DiffusionAK]
+    type = MaterialRealAux
+    variable = diffusion
+    property = diffusion
+  [../]
+
   [./KappaAK]
     type = MaterialRealAux
     variable = kappa
@@ -213,7 +223,7 @@ membrane = 0.5
     pressure = pressure
     jump_press = jump_grad_press
     jump_dens = jump_grad_dens
-    Cjump = 10.
+    Cjump = 15.
     is_first_order_viscosity = false
     eos = eos
   [../]
@@ -236,7 +246,7 @@ membrane = 0.5
   [./RadiationRight]
     type = DirichletBC
     variable = epsilon
-    value = 10.
+    value = 3.
     boundary = 'left'
   [../]
   
@@ -286,7 +296,7 @@ membrane = 0.5
   [./TimeStepper]
     type = FunctionDT
     time_t =  '0.     1.'
-    time_dt = '1.e-5  1.e-5'
+    time_dt = '1.e-3  1.e-3'
   [../]
 []
 

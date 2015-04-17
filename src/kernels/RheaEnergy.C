@@ -22,6 +22,8 @@ InputParameters validParams<RheaEnergy>()
 {
   InputParameters params = validParams<Kernel>();
 
+  // Boolean
+  params.addParam<bool>("is_dimensional_form", true, "boolean to solve the momentum equation in a dimensional form");
   // Coupled values:
   params.addRequiredCoupledVar("rhou", "fluid momentum");
   params.addRequiredCoupledVar("rho", "fluid density");
@@ -37,6 +39,8 @@ InputParameters validParams<RheaEnergy>()
 RheaEnergy::RheaEnergy(const std::string & name,
                        InputParameters parameters) :
   Kernel(name, parameters),
+    // Boolean
+    _is_dmsl_form(getParam<bool>("is_dimensional_form")),
     // Coupled values:
     _rho(coupledValue("rho")),
     _rhou(coupledValue("rhou")),
@@ -48,6 +52,12 @@ RheaEnergy::RheaEnergy(const std::string & name,
     _sigma_a(getMaterialProperty<Real>("sigma_a")),
     // Userobject computing the ICs
     _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    // Dimensional numbers
+    _c(_is_dmsl_form ? _ics.c() : 1.),
+    _a(_is_dmsl_form ? _ics.a() : 1.),
+    // Non-dimensional numbers
+    _Po(_is_dmsl_form ? 1. : _ics.P()),
+    _SIGMA(_is_dmsl_form ? 1. : _ics.SIGMA_A()),
     // Integers for jacobian terms
     _rho_nb(coupled("rho")),
     _rhou_nb(coupled("rhou")),
@@ -67,10 +77,11 @@ Real RheaEnergy::computeQpResidual()
   // Relaxation term:
   Real temp = _eos.temperature(_rho[_qp], vel, _u[_qp]);
   Real temp4 = temp*temp*temp*temp;
-  Real relaxation = _sigma_a[_qp]*_ics.c()*(_ics.a()*temp4-_epsilon[_qp]);
+  Real relaxation = _sigma_a[_qp]*_c*(_a*temp4-_epsilon[_qp]);
+  relaxation *= _SIGMA;
 
   // Return the flux:
-  return -conv*_grad_test[_i][_qp](0) + (relaxation+vel*_grad_eps[_qp](0)/3)*_test[_i][_qp];
+  return -conv*_grad_test[_i][_qp](0) + (relaxation+_Po*vel*_grad_eps[_qp](0)/3)*_test[_i][_qp];
 }
 
 Real RheaEnergy::computeQpJacobian()
@@ -83,7 +94,8 @@ Real RheaEnergy::computeQpJacobian()
   // Relaxation term:
   Real temp = _eos.temperature(_rho[_qp], vel, _u[_qp]);
   Real temp4 = 4*temp*temp*temp*_eos.dT_drhoE(_rho[_qp], vel, _u[_qp]);
-  Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_ics.c()*_ics.a()*temp4;
+  Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_c*_a*temp4;
+  relaxation *= _SIGMA;  
 
   // Return jacobian term
   return -conv*_grad_test[_i][_qp](0) + relaxation*_test[_i][_qp];
@@ -104,10 +116,11 @@ Real RheaEnergy::computeQpOffDiagJacobian( unsigned int _jvar)
     // Relaxation term:
     Real temp = _eos.temperature(_rho[_qp], vel, _u[_qp]);
     Real temp4 = 4*temp*temp*temp*_eos.dT_drho(_rho[_qp], vel, _u[_qp]);
-    Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_ics.c()*_ics.a()*temp4;
+    Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_c*_a*temp4;
+    relaxation *= _SIGMA;    
 
     // Return jacobian term
-    return -conv*_grad_test[_i][_qp](0) + (relaxation - _phi[_j][_qp]*vel/_rho[_qp]*_grad_eps[_qp](0)/3. )*_test[_i][_qp];
+    return -conv*_grad_test[_i][_qp](0) + (relaxation - _Po*_phi[_j][_qp]*vel/_rho[_qp]*_grad_eps[_qp](0)/3. )*_test[_i][_qp];
   }
   else if (_jvar == _rhou_nb)
   {
@@ -122,10 +135,11 @@ Real RheaEnergy::computeQpOffDiagJacobian( unsigned int _jvar)
     // Relaxation term:
     Real temp = _eos.temperature(_rho[_qp], vel, _u[_qp]);
     Real temp4 = 4*temp*temp*temp*_eos.dT_drhou(_rho[_qp], vel, _u[_qp]);
-    Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_ics.c()*_ics.a()*temp4;
+    Real relaxation = _phi[_j][_qp]*_sigma_a[_qp]*_c*_a*temp4;
+    relaxation *= _SIGMA;
 
     // Return jacobian term
-    return -conv*_grad_test[_i][_qp](0) + (relaxation + _phi[_j][_qp]/_rho[_qp]*_grad_eps[_qp](0)/3. )*_test[_i][_qp];
+    return -conv*_grad_test[_i][_qp](0) + (relaxation + _Po*_phi[_j][_qp]/_rho[_qp]*_grad_eps[_qp](0)/3. )*_test[_i][_qp];
   }
   else if (_jvar == _epsilon_nb)
   {
@@ -134,10 +148,11 @@ Real RheaEnergy::computeQpOffDiagJacobian( unsigned int _jvar)
     Real conv = 0.;
 
     // Relaxation term:
-    Real relaxation = -_phi[_j][_qp]*_sigma_a[_qp]*_ics.c()*_ics.a();
+    Real relaxation = -_phi[_j][_qp]*_sigma_a[_qp]*_c*_a;
+    relaxation *= _SIGMA;    
 
     // Return jacobian term
-    return -conv*_grad_test[_i][_qp](0) + (relaxation + vel*_grad_phi[_j][_qp](0)/3. )*_test[_i][_qp];
+    return -conv*_grad_test[_i][_qp](0) + (relaxation + _Po*vel*_grad_phi[_j][_qp](0)/3. )*_test[_i][_qp];
   }
   else
     return 0.;

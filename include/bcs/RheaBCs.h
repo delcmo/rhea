@@ -60,6 +60,10 @@ protected:
   // Userobject computing the ICs
   const ComputeICsRadHydro & _ics;
 
+  // Non-dimensional numbers
+  Real _Po;
+  Real _K;
+
   // Integers jacobian terms
   unsigned int _rho_nb;
   unsigned int _rhou_nb;

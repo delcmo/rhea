@@ -6,24 +6,25 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-isRadiation = false
-Cjump = 1.
+Cjump = 1.2
+is_first_order_viscosity = false
 use_jumps = false
+cfl = 10
 
-###### Constans #######
-speed_of_light = 299.792
-a = 1.372e-2
-sigma_a0 = '57735.0 0. 3.5'
-sigma_t0 = '57735.0 0. 3.5'
+###### Constants #######
 cross_section_name = temp_dpt_opacity
+speed_of_light = 2.99792e+2
+a = 1.372e-2
+sigma_a0 = '7216.875 0. 3.5'
+sigma_t0 = '7216.875 0. 3.5'
 
 ###### Initial Conditions #######
 Mach_inlet = 3.
 rho_hat_0 = 1.
-T_hat_0 = 0.1
-P = 1e-4
-K = 1
-SIGMA_A = 1e6
+T_hat_0 = 0.12156013625
+P = 1.e-4
+K = 1.
+SIGMA_A = 1.e6
 membrane = 0.
 []
 
@@ -37,13 +38,13 @@ membrane = 0.
   [./eos]
     type = IdealGasEquationOfState
   	gamma = 1.6666667
-  	Cv = 1.2348000000000001e-001
+  	Cv = 0.221804 # 1.2348000000000001e-001
   [../]
   
   [./ics]
     type = ComputeICsRadHydro
     eos = eos
-  [../]  
+  [../]
 
   [./JumpGradPress]
     type = JumpGradientInterface
@@ -62,9 +63,9 @@ membrane = 0.
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 600
-  xmin = -2.e-3
-  xmax = 2.e-3
+  nx = 500
+  xmin = -5.627429744403292938e-02 # -2.e-2
+  xmax = 7.255501500637379086e-02 # 2.e-2
   block_id = '0'
 []
 
@@ -76,7 +77,7 @@ membrane = 0.
 [Variables]
   [./rho]
     family = LAGRANGE
-    scaling = 1e+0
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -86,7 +87,7 @@ membrane = 0.
 
   [./rhou]
     family = LAGRANGE
-    scaling = 1e+0
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -96,7 +97,7 @@ membrane = 0.
 
   [./rhoE]
     family = LAGRANGE
-    scaling = 1e+0
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -106,7 +107,7 @@ membrane = 0.
 
   [./epsilon]
     family = LAGRANGE
-    scaling = 1e+0
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -156,6 +157,7 @@ membrane = 0.
     rhoE = rhoE
     radiation = epsilon
     eos = eos
+    ics = ics
   [../]
 
   [./EnergyHyperbolic]
@@ -165,6 +167,7 @@ membrane = 0.
     rhou = rhou
     radiation = epsilon
     eos = eos
+    ics = ics
   [../]
 
   [./RadiationHyperbolic]
@@ -174,6 +177,7 @@ membrane = 0.
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    ics = ics    
   [../]
 
   [./MassVisc]
@@ -355,6 +359,7 @@ membrane = 0.
     rho = rho
     pressure = pressure
     eos = eos
+    ics = ics    
   [../]
 []
 
@@ -449,7 +454,6 @@ membrane = 0.
     rhoE = rhoE
     radiation = epsilon
     eos = eos
-    cfl = 1.
   [../]
 []
 
@@ -462,7 +466,7 @@ membrane = 0.
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 2.2e-1
+  end_time = 10.
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
@@ -470,13 +474,12 @@ membrane = 0.
   nl_abs_tol = 1e-7
   l_max_its = 50
   nl_max_its = 50
+#  trans_ss_check = true
+#  ss_check_tol = 1.e-12
   [./TimeStepper]
     type = PostprocessorDT
     postprocessor = dt
-    dt = 1.e-8
-#    type = FunctionDT
-#    time_t =  '0.     1.e-2   1.e-1  1.'
-#    time_dt = '1.e-4  1.e-4   1.e-4  1.e-4'
+    dt = 1.e-6
   [../]
 []
 
@@ -487,9 +490,18 @@ membrane = 0.
 ##############################################################################################
 
 [Outputs]
-  output_initial = true
-  interval = 1
-  exodus = true
+  file_base = Mach3_nel_500
+  [./console]
+  type = Console
+  perf_log = true
+  interval = 200
+  [../]
+  
+  [./out]
+    type = Exodus
+    interval = 200
+    output_initial = true    
+  [../]
 []
 
 ##############################################################################################

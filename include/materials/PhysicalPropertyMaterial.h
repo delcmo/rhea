@@ -31,8 +31,9 @@ private:
   };
   MooseEnum _cs_type;
 
-  // Boolean for diffusion coefficient
+  // Boolean for diffusion coefficient and dimensional form
   bool _is_diffusion;
+  bool _is_dmsl_form;  
 
   // Coupled variables:
   VariableValue & _rho;

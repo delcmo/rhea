@@ -97,7 +97,7 @@ EntropyViscosityCoefficient::computeQpProperties()
   // Compute norm:
 //  Real norm = std::min(_rho[_qp]*sp*sp, _press[_qp]);
   Real norm = _rho[_qp]*sp*sp;
-  
+
   // Compute high-order viscosity coefficient:
   Real kappa_e = _t_step == 1 ? _kappa_max[_qp] : h_cell*h_cell*(std::max(std::fabs(residual), jump_value)) / norm;
 

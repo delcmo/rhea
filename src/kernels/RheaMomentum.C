@@ -22,12 +22,16 @@ InputParameters validParams<RheaMomentum>()
 {
   InputParameters params = validParams<Kernel>();
 
+  // Boolean
+  params.addParam<bool>("is_dimensional_form", true, "boolean to solve the momentum equation in a dimensional form");
   // Coupled values:
   params.addRequiredCoupledVar("rho", "fluid density");
   params.addRequiredCoupledVar("rhoE", "fluid total energy");
   params.addCoupledVar("radiation", "radiation");
   // Equation of state
   params.addRequiredParam<UserObjectName>("eos", "Equation of state");
+  // Userobject computing the ICs
+  params.addRequiredParam<UserObjectName>("ics", "parameters for ics.");
   
   return params;
 }
@@ -35,12 +39,18 @@ InputParameters validParams<RheaMomentum>()
 RheaMomentum::RheaMomentum(const std::string & name,
                        InputParameters parameters) :
   Kernel(name, parameters),
+    // Boolean
+    _is_dmsl_form(getParam<bool>("is_dimensional_form")),
     // Coupled values:
     _rho(coupledValue("rho")),
     _rhoE(coupledValue("rhoE")),
     _epsilon(isCoupled("radiation") ? coupledValue("radiation") : _zero),
     // Equation of state
     _eos(getUserObject<EquationOfState>("eos")),
+    // Userobject computing the ICs
+    _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    // Non-dimensional number Po
+    _Po(_is_dmsl_form ? 1. : _ics.P()),
     // Integers for jacobian terms
     _rho_nb(coupled("rho")),
     _rhoE_nb(coupled("rhoE")),
@@ -57,7 +67,7 @@ Real RheaMomentum::computeQpResidual()
   Real pressure = _eos.pressure(_rho[_qp], vel, _rhoE[_qp]);
 
   // Return
-  return -(_u[_qp]*vel + pressure + _epsilon[_qp]/3)*_grad_test[_i][_qp](0);
+  return -(_u[_qp]*vel + pressure + _Po*_epsilon[_qp]/3)*_grad_test[_i][_qp](0);
 }
 
 Real RheaMomentum::computeQpJacobian()

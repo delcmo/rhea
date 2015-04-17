@@ -6,7 +6,6 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-isRadiation = false
 Cjump = 1.
 is_first_order_viscosity = false
 use_jumps = false
@@ -156,6 +155,7 @@ membrane = 0.
     rhoE = rhoE
     radiation = epsilon
     eos = eos
+    ics = ics
   [../]
 
   [./EnergyHyperbolic]

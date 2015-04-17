@@ -7,6 +7,8 @@ InputParameters validParams<ComputeICsRadHydro>()
 {
   InputParameters params = validParams<UserObject>();
 
+  // Boolean
+  params.addParam<bool>("is_dimensional_form", true, "boolean to solve the momentum equation in a dimensional form");
   // Physical properties
   params.addRequiredParam<Real>("speed_of_light", "Speed of light");
   params.addRequiredParam<Real>("a", "Boltzman constant");
@@ -28,6 +30,8 @@ InputParameters validParams<ComputeICsRadHydro>()
 
 ComputeICsRadHydro::ComputeICsRadHydro(const std::string & name, InputParameters parameters) :
     GeneralUserObject(name, parameters),
+    // Boolean
+    _is_dmsl_form(getParam<bool>("is_dimensional_form")),
     // Physical properties
     _sp(getParam<Real>("speed_of_light")),
     _a(getParam<Real>("a")),
@@ -79,18 +83,18 @@ ComputeICsRadHydro::ComputeICsRadHydro(const std::string & name, InputParameters
   Real rho_1 = (f_1+std::sqrt(f_1*f_1+f_2)) / (6.*(_eos.gamma()-1.)*T_1);
 
   // Compute T_hat_post and rho_hat_post
-  _T_hat_post = T_1*_T_hat_pre;
-  _rho_hat_post = rho_1*_rho_hat_pre;
+  _T_hat_post = _is_dmsl_form ? T_1*_T_hat_pre : T_1;
+  _rho_hat_post = _is_dmsl_form ? rho_1*_rho_hat_pre : rho_1;
 
   /// Compute other pre and post shock parameters ///
   // Compute vel_hat_pre and vel_hat_post
   Real a_hat_0 = std::sqrt(_a*_T_hat_pre*_T_hat_pre*_T_hat_pre*_T_hat_pre/(_rho_hat_pre*_P));
-  _vel_hat_pre = _Mach_inlet*a_hat_0;
+  _vel_hat_pre = _is_dmsl_form ? _Mach_inlet*a_hat_0 : _Mach_inlet;
   _vel_hat_post = _rho_hat_pre*_vel_hat_pre/_rho_hat_post;
 
   // Compute eps_hat_pre and eps_hat_post
-  _eps_hat_pre = _a*_T_hat_pre*_T_hat_pre*_T_hat_pre*_T_hat_pre;
-  _eps_hat_post = _a*_T_hat_post*_T_hat_post*_T_hat_post*_T_hat_post;
+  _eps_hat_pre = _is_dmsl_form ? _a*_T_hat_pre*_T_hat_pre*_T_hat_pre*_T_hat_pre : _T_hat_pre*_T_hat_pre*_T_hat_pre*_T_hat_pre;
+  _eps_hat_post = _is_dmsl_form ? _a*_T_hat_post*_T_hat_post*_T_hat_post*_T_hat_post : _T_hat_post*_T_hat_post*_T_hat_post*_T_hat_post;
 
   // Compute and output the pre- and post-shock density values
   std::cout<<"--------------------------------------------------------------"<<std::endl;

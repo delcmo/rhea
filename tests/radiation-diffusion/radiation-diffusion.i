@@ -6,7 +6,6 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-isRadiation = false
 
 ###### Constans #######
 speed_of_light = 299.792

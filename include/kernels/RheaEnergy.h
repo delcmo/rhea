@@ -40,6 +40,9 @@ protected:
 
 private:
 
+  // Booleans for dimensional form
+  bool _is_dmsl_form;
+
   // coupled variables:
   VariableValue & _rho;
   VariableValue & _rhou;
@@ -54,6 +57,14 @@ private:
 
   // Userobject computing the ICs
   const ComputeICsRadHydro & _ics;
+
+  // Dimensional numbers
+  Real _c;
+  Real _a;
+
+  // Non-dimensional numbers
+  Real _Po;
+  Real _SIGMA;
 
   // Integers jacobian terms
   unsigned int _rho_nb;

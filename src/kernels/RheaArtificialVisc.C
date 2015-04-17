@@ -23,8 +23,6 @@ InputParameters validParams<RheaArtificialVisc>()
 
   // Equation name:
   params.addParam<std::string>("equation_name", "invalid", "Name of the equation.");
-  // Boolean for dissipation in radiation equation:
-  params.addParam<bool>("isRadiation", false, "boolean for dissipation in radiation equation.");
 
   return params;
 }
@@ -34,8 +32,6 @@ RheaArtificialVisc::RheaArtificialVisc(const std::string & name,
   Kernel(name, parameters),
     // Declare equation types
     _equ_type("continuity x_momentum energy radiation invalid", getParam<std::string>("equation_name")),
-    // Boolean:
-    _isRadiation(getParam<bool>("isRadiation")),
     // Material properties:
     _kappa(getMaterialProperty<Real>("kappa")),
     _D(getMaterialProperty<Real>("diffusion"))
@@ -58,8 +54,8 @@ Real RheaArtificialVisc::computeQpResidual()
     return _kappa[_qp]*_grad_u[_qp]*_grad_test[_i][_qp];
     break;
   case radiation:
-    if (_isRadiation && _kappa[_qp]>_D[_qp])
-      return _kappa[_qp]*_grad_u[_qp]*_grad_test[_i][_qp];
+      if (_kappa[_qp]>_D[_qp])
+        return _kappa[_qp]*_grad_u[_qp]*_grad_test[_i][_qp];
     else
       return 0.;
     break;

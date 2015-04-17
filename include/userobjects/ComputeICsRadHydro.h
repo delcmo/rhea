@@ -34,6 +34,9 @@ public:
 
   virtual void finalize() {};
 
+  // Boolean for dimensional form
+  bool _is_dmsl_form;
+
   // Pre- and post-shock functions
   Real rho_hat_post() const { return _rho_hat_post;};
   Real rho_hat_pre() const { return _rho_hat_pre;};

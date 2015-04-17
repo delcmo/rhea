@@ -5,6 +5,8 @@ InputParameters validParams<RheaBCs>()
 {
   InputParameters params = validParams<IntegratedBC>();
 
+  // Boolean
+  params.addParam<bool>("is_dimensional_form", true, "boolean to solve the momentum equation in a dimensional form");
   // Equation name
   params.addRequiredParam<std::string>("equation_name", "The name of the equation this BC is acting on");
   // Coupled variables:
@@ -41,6 +43,9 @@ RheaBCs::RheaBCs(const std::string & name, InputParameters parameters) :
     _eos(getUserObject<IdealGasEquationOfState>("eos")),
     // Userobject computing the ICs
     _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    // Non-dimensional numbers
+    _Po(getParam<bool>("is_dimensional_form") ? 1. : _ics.P()),
+    _K(getParam<bool>("is_dimensional_form") ? 1. : _ics.K()),
     // Integers for jacobian terms
     _rho_nb(coupled("rho")),
     _rhou_nb(coupled("rhou")),
@@ -113,14 +118,14 @@ RheaBCs::computeQpResidual()
     return rho_bc*vel_bc*_normals[_qp](0)*_test[_i][_qp];
     break;
   case x_momentum:
-    return (rhou_bc*vel_bc +press_bc + _epsilon[_qp]/3)*_normals[_qp](0)*_test[_i][_qp];
+    return (rhou_bc*vel_bc +press_bc + _Po*_epsilon[_qp]/3)*_normals[_qp](0)*_test[_i][_qp];
     break;
   case energy:
     return (rhoE_bc+press_bc)*vel_bc*_normals[_qp](0)*_test[_i][_qp];
     break;
   case radiation:
     eps = -0.5*(_normals[_qp](0)-1)*_ics.eps_hat_pre() + 0.5*(1+_normals[_qp](0))*_ics.eps_hat_post();
-    return (4*vel*_u[_qp]/3*_normals[_qp](0)+0.5*_D[_qp]*(_u[_qp]-eps))*_test[_i][_qp];
+    return (4*vel*_u[_qp]/3*_normals[_qp](0)+0.5*_K*_D[_qp]*(_u[_qp]-eps))*_test[_i][_qp];
     break;
   default:
     mooseError("The equation name is not supported in the \"RheaBCs\" type of boundary condition.");

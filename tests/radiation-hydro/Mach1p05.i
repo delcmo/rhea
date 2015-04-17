@@ -6,7 +6,6 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-isRadiation = false
 
 ###### Constans #######
 speed_of_light = 299.792
@@ -153,6 +152,7 @@ membrane = 0.
     rhoE = rhoE
     radiation = epsilon
     eos = eos
+    ics = ics
   [../]
 
   [./EnergyHyperbolic]

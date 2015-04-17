@@ -15,7 +15,7 @@
 #include "RheaMass.h"
 
 /**
-This Kernel computes the convection flux of the continuity equation.
+This Kernel computes the convection flux of the continuity equation (same kernel for dimensional and non-dimensional form).
 */
 template<>
 InputParameters validParams<RheaMass>()

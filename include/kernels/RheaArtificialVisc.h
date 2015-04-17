@@ -49,9 +49,6 @@ private:
   };
   MooseEnum _equ_type;
 
-  // Boolean for dissipation in radiation:
-  bool _isRadiation;
-
   // Material property:
   MaterialProperty<Real> & _kappa;
   MaterialProperty<Real> & _D;

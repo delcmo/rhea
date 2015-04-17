@@ -39,6 +39,10 @@ protected:
   virtual Real computeQpOffDiagJacobian( unsigned int jvar );
 
 private:
+
+  // Booleans for dimensional form
+  bool _is_dmsl_form;
+
   // Coupled variables:
   VariableValue & _rho;
   VariableValue & _rhou;
@@ -53,6 +57,14 @@ private:
 
   // Userobject computing the ICs
   const ComputeICsRadHydro & _ics;
+
+  // Dimensional numbers
+  Real _c;
+  Real _a;
+
+  // Non-dimensional numbers
+  Real _SIGMA;
+  Real _K;
 
   // Integers for jacobian terms
   unsigned int _rho_nb;

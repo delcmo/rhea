@@ -22,6 +22,8 @@ InputParameters validParams<RheaRadiation>()
 {
   InputParameters params = validParams<Kernel>();
 
+  // Boolean
+  params.addParam<bool>("is_dimensional_form", true, "boolean to solve the momentum equation in a dimensional form");
   // Coupled values:
   params.addRequiredCoupledVar("rho", "fluid density");  
   params.addRequiredCoupledVar("rhou", "fluid momentum");
@@ -37,6 +39,8 @@ InputParameters validParams<RheaRadiation>()
 RheaRadiation::RheaRadiation(const std::string & name,
                        InputParameters parameters) :
   Kernel(name, parameters),
+    // Boolean
+    _is_dmsl_form(getParam<bool>("is_dimensional_form")),
     // Coupled values:
     _rho(coupledValue("rho")),
     _rhou(coupledValue("rhou")),
@@ -48,6 +52,12 @@ RheaRadiation::RheaRadiation(const std::string & name,
     _D(getMaterialProperty<Real>("diffusion")),
     // Userobject computing the ICs
     _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    // Dimensional numbers
+    _c(_is_dmsl_form ? _ics.c() : 1.),
+    _a(_is_dmsl_form ? _ics.a() : 1.),
+    // Non-dimensional numbers
+    _SIGMA(_is_dmsl_form ? 1. : _ics.SIGMA_A()),
+    _K(_is_dmsl_form ? 1. : _ics.K()),
     // Integers for jacobian terms
     _rho_nb(coupled("rho")),
     _rhou_nb(coupled("rhou")),
@@ -65,13 +75,15 @@ Real RheaRadiation::computeQpResidual()
 
   // Diffusion term:
   Real diff = _D[_qp]*_grad_u[_qp](0);
+  diff *= _K;
 
   // Relaxation term:
   Real temp = _eos.temperature(_rho[_qp], vel, _rhoE[_qp]);
   Real temp4 = temp*temp*temp*temp;
-  Real relaxation = _sigma_a[_qp] * _ics.c() * (_ics.a()*temp4-_u[_qp]);
+  Real relaxation = _sigma_a[_qp] * _c * (_a*temp4-_u[_qp]);
+  relaxation *= _SIGMA;
 
-  // Return the total expression for the continuity equation:
+  // Return the total expression for the radiation equation:
   return (-conv+diff)*_grad_test[_i][_qp](0) - (relaxation+vel*_grad_u[_qp](0)/3)*_test[_i][_qp];
 }
 
@@ -83,9 +95,11 @@ Real RheaRadiation::computeQpJacobian()
 
   // Diffusion term:
   Real diff = _D[_qp]*_grad_phi[_j][_qp](0);
+  diff *= _K;  
 
   // Relaxation term:
-  Real relaxation = -_sigma_a[_qp]*_ics.c()*_phi[_j][_qp];
+  Real relaxation = -_sigma_a[_qp]*_c*_phi[_j][_qp];
+  relaxation *= _SIGMA;
 
   // Return jacobian contribution
   return (-conv+diff)*_grad_test[_i][_qp](0) - (relaxation+vel*_grad_phi[_j][_qp](0)/3)*_test[_i][_qp];
@@ -105,7 +119,8 @@ Real RheaRadiation::computeQpOffDiagJacobian( unsigned int _jvar)
     // Relaxation term:
     Real temp = _eos.temperature(_rho[_qp], vel, _rhoE[_qp]);
     Real temp4 = 4*_eos.dT_drho(_rho[_qp], vel, _rhoE[_qp])*temp*temp*temp;
-    Real relaxation = _sigma_a[_qp] * _ics.c() * _ics.a()*_phi[_j][_qp]*temp4;
+    Real relaxation = _sigma_a[_qp] * _c * _a*_phi[_j][_qp]*temp4;
+    relaxation *= _SIGMA;    
 
     // Return jacobian term
     return (-conv+diff)*_grad_test[_i][_qp](0) - (relaxation-_phi[_j][_qp]*vel/_rho[_qp]*_grad_u[_qp](0)/3)*_test[_i][_qp];
@@ -119,7 +134,7 @@ Real RheaRadiation::computeQpOffDiagJacobian( unsigned int _jvar)
     // Relaxation term:
     Real temp = _eos.temperature(_rho[_qp], vel, _rhoE[_qp]);
     Real temp4 = 4*_eos.dT_drhou(_rho[_qp], vel, _rhoE[_qp])*temp*temp*temp;
-    Real relaxation = _sigma_a[_qp] * _ics.c() * _ics.a()*_phi[_j][_qp]*temp4;
+    Real relaxation = _sigma_a[_qp] * _c * _a*_phi[_j][_qp]*temp4;
 
     // Return jacobian term
     return (-conv+diff)*_grad_test[_i][_qp](0) - (relaxation+_phi[_j][_qp]/_rho[_qp]*_grad_u[_qp](0)/3)*_test[_i][_qp];
@@ -133,7 +148,8 @@ Real RheaRadiation::computeQpOffDiagJacobian( unsigned int _jvar)
     // Relaxation term:
     Real temp = _eos.temperature(_rho[_qp], vel, _rhoE[_qp]);
     Real temp4 = 4*_eos.dT_drhoE(_rho[_qp], vel, _rhoE[_qp])*temp*temp*temp;
-    Real relaxation = _sigma_a[_qp] * _ics.c() * _ics.a()*_phi[_j][_qp]*temp4;
+    Real relaxation = _sigma_a[_qp] * _c * _a*_phi[_j][_qp]*temp4;
+    relaxation *= _SIGMA;    
 
     // Return jacobian term
     return (-conv+diff)*_grad_test[_i][_qp](0) - relaxation*_test[_i][_qp];

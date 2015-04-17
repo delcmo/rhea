@@ -17,6 +17,7 @@
 
 #include "Kernel.h"
 #include "EquationOfState.h"
+#include "ComputeICsRadHydro.h"
 
 class RheaMomentum;
 
@@ -38,13 +39,20 @@ protected:
   virtual Real computeQpOffDiagJacobian( unsigned int jvar );
 
 private:
+  // Booleans for dimensional form
+  bool _is_dmsl_form;
+
   // coupled variables:
   VariableValue & _rho;
   VariableValue & _rhoE;
   VariableValue & _epsilon;
 
-  // Equation of state
+  // userobjects: EoS and ICs
   const EquationOfState & _eos;
+  const ComputeICsRadHydro & _ics;
+
+  // Non-dimensional number Po
+  Real _Po;
 
   // Integers for jacobian terms
   unsigned int _rho_nb;
