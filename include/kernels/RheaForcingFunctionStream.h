@@ -64,9 +64,9 @@ private:
     const IdealGasEquationOfState & _eos;
     
     // Material property: viscosity coefficient.
-    MaterialProperty<Real> & _sigma_a;
-    MaterialProperty<Real> & _D;
-    MaterialProperty<Real> & _mu;
+    const MaterialProperty<Real> & _sigma_a;
+    const MaterialProperty<Real> & _D;
+    const MaterialProperty<Real> & _mu;
 };
 
 #endif //RHEAFORCINGFUNCTIONSTREAM_H

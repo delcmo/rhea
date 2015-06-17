@@ -52,7 +52,7 @@ protected:
   VariableValue & _pressure_old;
 
   // Material property:
-  MaterialProperty<Real> & _D;
+  const MaterialProperty<Real> & _D;
 
   // Equation of state
   const IdealGasEquationOfState & _eos;

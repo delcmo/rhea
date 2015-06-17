@@ -122,7 +122,7 @@ PhysicalPropertyMaterial::computeQpProperties()
 
   // Diffusion coefficient
   if (_is_diffusion)
-    _diffusion[_qp] = _ics.c() / (3*_sigma_t[_qp]);
+    _diffusion[_qp] = _is_dmsl_form ? _ics.c() / (3*_sigma_t[_qp]) : 1. / _sigma_t[_qp];
   else
     _diffusion[_qp] = 0.;
 

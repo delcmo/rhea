@@ -40,33 +40,33 @@ protected:
   virtual Real computeQpOffDiagJacobian(unsigned int _jvar);
     
 private:
-    // Equations types
-    enum EquationType
-    {
-        CONTINUITY = 0,
-        MOMENTUM = 1,
-        ENERGY = 2,
-        RADIATION = 3
-    };
+  // Equations types
+  enum EquationType
+  {
+      CONTINUITY = 0,
+      MOMENTUM = 1,
+      ENERGY = 2,
+      RADIATION = 3
+  };
 
-    // Diffusion name
-    std::string _equ_name;
-    
-    // Diffusion type
-    MooseEnum _equ_type;
-    
-    // Constants
-    const Real & _c;
-    const Real & _a;
-    const Real & _sigma_t;
-    
-    // Equation of state:
-    const IdealGasEquationOfState & _eos;
-    
-    // Material property: viscosity coefficient.
-    MaterialProperty<Real> & _sigma_a;
-    MaterialProperty<Real> & _D;
-    MaterialProperty<Real> & _mu;
+  // Diffusion name
+  std::string _equ_name;
+  
+  // Diffusion type
+  MooseEnum _equ_type;
+  
+  // Constants
+  const Real & _c;
+  const Real & _a;
+  const Real & _sigma_t;
+  
+  // Equation of state:
+  const IdealGasEquationOfState & _eos;
+  
+  // Material property: viscosity coefficient.
+  const MaterialProperty<Real> & _sigma_a;
+  const MaterialProperty<Real> & _D;
+  const MaterialProperty<Real> & _mu;
 };
 
 #endif //RheaForcingFunction_H

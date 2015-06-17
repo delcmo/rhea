@@ -53,7 +53,7 @@ private:
   const EquationOfState & _eos;
 
   // Material property:
-  MaterialProperty<Real> & _sigma_a;
+  const MaterialProperty<Real> & _sigma_a;
 
   // Userobject computing the ICs
   const ComputeICsRadHydro & _ics;

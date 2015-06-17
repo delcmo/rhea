@@ -50,8 +50,8 @@ private:
   MooseEnum _equ_type;
 
   // Material property:
-  MaterialProperty<Real> & _kappa;
-  MaterialProperty<Real> & _D;
+  const MaterialProperty<Real> & _kappa;
+  const MaterialProperty<Real> & _D;
 };
 
 #endif //RHEAARTIFICIALVISC_H

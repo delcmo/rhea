@@ -6,23 +6,23 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-isRadiation = false
-Cjump = 1.5
+Cjump = 1.2
 is_first_order_viscosity = false
 use_jumps = false
 cfl = 10
+is_dimensional_form = false
 
 ###### Constants #######
 cross_section_name = pure_absorber
 speed_of_light = 2.99792e+2
 a = 1.372e-2
-#sigma_a0 = '1.e+006 0. 3.5'
-#sigma_t0 = '1.e+006 0. 3.5'
+#sigma_a0 = '7216.875 0. 3.5'
+#sigma_t0 = '7216.875 0. 3.5'
 
 ###### Initial Conditions #######
 Mach_inlet = 3.
 rho_hat_0 = 1.
-T_hat_0 = 0.12156013625
+T_hat_0 = 1. # 0.12156013625
 P = 1.e-4
 K = 1.
 SIGMA_A = 1.e6
@@ -39,7 +39,7 @@ membrane = 0.
   [./eos]
     type = IdealGasEquationOfState
   	gamma = 1.6666667
-  	Cv = 0.221804 # 1.2348000000000001e-001
+    Cv = 1.2348000000000001e+002 # 0.221804 # 1.2348000000000001e-001
   [../]
   
   [./ics]
@@ -64,9 +64,9 @@ membrane = 0.
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 25
-  xmin = -1.310054493449609447e-02 # -2.e-2
-  xmax = 1.310054493449609447e-02 # 2.e-2
+  nx = 500
+  xmin = -5.627429744403292938e-02 # -2.e-2
+  xmax = 7.255501500637379086e-02 # 2.e-2
   block_id = '0'
 []
 
@@ -467,7 +467,7 @@ membrane = 0.
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 5.
+  end_time = 10.
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
@@ -491,17 +491,17 @@ membrane = 0.
 ##############################################################################################
 
 [Outputs]
+#  file_base = Mach3_nel_500
   [./console]
   type = Console
   perf_log = true
-  interval = 100
+  interval = 1
   [../]
   
   [./out]
     type = Exodus
-    interval = 100
-    output_initial = true
-    output_final = true
+    interval = 1
+    output_initial = true    
   [../]
 []
 
