@@ -1,4 +1,6 @@
 #include "TimeStepCFL.h"
+#include "MooseMesh.h"
+#include "libmesh/quadrature.h"
 
 template<>
 InputParameters validParams<TimeStepCFL>()
@@ -18,8 +20,8 @@ InputParameters validParams<TimeStepCFL>()
   return params;
 }
 
-TimeStepCFL::TimeStepCFL(const std::string & name, InputParameters parameters) :
-    ElementPostprocessor(name, parameters),
+TimeStepCFL::TimeStepCFL(const InputParameters & parameters) :
+    ElementPostprocessor(parameters),
     // Coupled variables
     _rho(coupledValue("rho")),
     _rhou(coupledValue("rhou")),

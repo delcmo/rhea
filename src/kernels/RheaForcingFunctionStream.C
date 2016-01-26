@@ -13,6 +13,7 @@
 /****************************************************************/
 
 #include "RheaForcingFunctionStream.h"
+
 /**
 This function computes the dissipative terms for all of the equations. It is dimension agnostic.
  */
@@ -31,9 +32,8 @@ InputParameters validParams<RheaForcingFunctionStream>()
   return params;
 }
 
-RheaForcingFunctionStream::RheaForcingFunctionStream(const std::string & name,
-                       InputParameters parameters) :
-  Kernel(name, parameters),
+RheaForcingFunctionStream::RheaForcingFunctionStream(const InputParameters & parameters) :
+  Kernel(parameters),
     // Declare equation types
     _equ_name(getParam<std::string>("equation_name")),
     _equ_type("CONTINUITY, MOMENTUM, ENERGY, RADIATION, INVALID", "INVALID"),

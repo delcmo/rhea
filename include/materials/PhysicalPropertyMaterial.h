@@ -15,7 +15,7 @@ InputParameters validParams<PhysicalPropertyMaterial>();
 class PhysicalPropertyMaterial : public Material
 {
 public:
-  PhysicalPropertyMaterial(const std::string & name, InputParameters parameters);
+  PhysicalPropertyMaterial(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();

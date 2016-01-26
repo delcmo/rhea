@@ -13,6 +13,7 @@
 /****************************************************************/
 
 #include "RheaRadiation.h"
+#include "MooseMesh.h"
 
 /**
 This Kernel computes the convection flux of the radiation diffusion equation
@@ -36,9 +37,8 @@ InputParameters validParams<RheaRadiation>()
   return params;
 }
 
-RheaRadiation::RheaRadiation(const std::string & name,
-                       InputParameters parameters) :
-  Kernel(name, parameters),
+RheaRadiation::RheaRadiation(const InputParameters & parameters) :
+  Kernel(parameters),
     // Boolean
     _is_dmsl_form(getParam<bool>("is_dimensional_form")),
     // Coupled values:

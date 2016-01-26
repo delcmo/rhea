@@ -12,7 +12,7 @@ class IdealGasEquationOfState : public EquationOfState
 {
 public:
   // Constructor
-  IdealGasEquationOfState(const std::string & name, InputParameters parameters);
+  IdealGasEquationOfState(const InputParameters & parameters);
 
   // Destructor  
   virtual ~IdealGasEquationOfState(); 

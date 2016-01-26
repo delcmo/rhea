@@ -37,9 +37,8 @@ InputParameters validParams<InitialConditions>()
   return params;
 }
 
-InitialConditions::InitialConditions(const std::string & name,
-                     InputParameters parameters) :
-    InitialCondition(name, parameters),
+InitialConditions::InitialConditions(const InputParameters & parameters) :
+    InitialCondition(parameters),
     // IC parameters
     _rho_left(getParam<Real>("rho_init_left")),
     _rho_right(getParam<Real>("rho_init_right")),

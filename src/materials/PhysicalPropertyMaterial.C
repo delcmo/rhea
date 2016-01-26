@@ -1,4 +1,5 @@
 #include "PhysicalPropertyMaterial.h"
+#include "MooseMesh.h"
 
 template<>
 InputParameters validParams<PhysicalPropertyMaterial>()
@@ -25,8 +26,8 @@ InputParameters validParams<PhysicalPropertyMaterial>()
   return params;
 }
 
-PhysicalPropertyMaterial::PhysicalPropertyMaterial(const std::string & name, InputParameters params) :
-    Material(name, params),
+PhysicalPropertyMaterial::PhysicalPropertyMaterial(const InputParameters & params) :
+    Material(params),
     // Declare viscosity types
     _cs_type("constant_cs temp_dpt_cs temp_dpt_opacity pure_absorber invalid", getParam<std::string>("cross_section_name")),
     // Booleans

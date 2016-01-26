@@ -16,7 +16,7 @@ class RheaBCs : public IntegratedBC
 {
 
 public:
-  RheaBCs(const std::string & name, InputParameters parameters);
+  RheaBCs(const InputParameters & parameters);
 
   virtual ~RheaBCs(){}
 
@@ -67,7 +67,6 @@ protected:
   // Integers jacobian terms
   unsigned int _rho_nb;
   unsigned int _rhou_nb;
-  unsigned int _rhoE_nb;
   unsigned int _epsilon_nb;
 };
 

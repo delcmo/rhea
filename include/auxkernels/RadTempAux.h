@@ -28,7 +28,7 @@ class RadTempAux : public AuxKernel
 {
 public:
 
-  RadTempAux(const std::string & name, InputParameters parameters);
+  RadTempAux(const InputParameters & parameters);
 
 protected:
   virtual Real computeValue();

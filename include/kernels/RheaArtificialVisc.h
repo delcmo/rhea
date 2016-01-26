@@ -27,8 +27,7 @@ class RheaArtificialVisc : public Kernel
 {
 public:
 
-  RheaArtificialVisc(const std::string & name,
-             InputParameters parameters);
+  RheaArtificialVisc(const InputParameters & parameters);
 
 protected:
 

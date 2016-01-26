@@ -35,8 +35,7 @@ public:
   /**
    * Constructor: Same as the rest of the MOOSE Objects
    */
-  InitialConditions(const std::string & name,
-            InputParameters parameters);
+  InitialConditions(const InputParameters & parameters);
 
   /**
    * The value of the variable at a point.

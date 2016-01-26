@@ -13,6 +13,7 @@
 /****************************************************************/
 
 #include "RheaMass.h"
+#include "MooseMesh.h"
 
 /**
 This Kernel computes the convection flux of the continuity equation (same kernel for dimensional and non-dimensional form).
@@ -27,9 +28,8 @@ InputParameters validParams<RheaMass>()
   return params;
 }
 
-RheaMass::RheaMass(const std::string & name,
-                       InputParameters parameters) :
-  Kernel(name, parameters),
+RheaMass::RheaMass(const InputParameters & parameters) :
+  Kernel(parameters),
     // Coupled aux variables
     _rhou(coupledValue("rhou")),
     // Integer for jacobian term

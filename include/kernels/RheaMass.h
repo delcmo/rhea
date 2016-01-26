@@ -25,8 +25,7 @@ class RheaMass : public Kernel
 {
 public:
 
-  RheaMass(const std::string & name,
-             InputParameters parameters);
+  RheaMass(const InputParameters & parameters);
 
 protected:
  

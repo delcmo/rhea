@@ -32,7 +32,7 @@ class MachNumberAux : public AuxKernel
 {
 public:
 
-  MachNumberAux(const std::string & name, InputParameters parameters);
+  MachNumberAux(const InputParameters & parameters);
 
 protected:
   virtual Real computeValue();

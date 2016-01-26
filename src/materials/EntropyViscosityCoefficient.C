@@ -1,4 +1,5 @@
 #include "EntropyViscosityCoefficient.h"
+#include "MooseMesh.h"
 
 template<>
 InputParameters validParams<EntropyViscosityCoefficient>()
@@ -24,8 +25,8 @@ InputParameters validParams<EntropyViscosityCoefficient>()
   return params;
 }
 
-EntropyViscosityCoefficient::EntropyViscosityCoefficient(const std::string & name, InputParameters parameters) :
-    Material(name, parameters),
+EntropyViscosityCoefficient::EntropyViscosityCoefficient(const InputParameters & parameters) :
+    Material(parameters),
     // Coupled variables:
     _rho(coupledValue("rho")),
     _rho_old(coupledValueOld("rho")),

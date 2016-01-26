@@ -27,8 +27,7 @@ class RheaRadiation : public Kernel
 {
 public:
 
-  RheaRadiation(const std::string & name,
-             InputParameters parameters);
+  RheaRadiation(const InputParameters & parameters);
 
 protected:
  

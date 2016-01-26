@@ -27,8 +27,7 @@ class RheaEnergy : public Kernel
 {
 public:
 
-  RheaEnergy(const std::string & name,
-             InputParameters parameters);
+  RheaEnergy(const InputParameters & parameters);
 
 protected:
  

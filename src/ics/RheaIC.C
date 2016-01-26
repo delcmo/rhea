@@ -30,9 +30,8 @@ InputParameters validParams<RheaIC>()
   return params;
 }
 
-RheaIC::RheaIC(const std::string & name,
-                     InputParameters parameters) :
-    InitialCondition(name, parameters),
+RheaIC::RheaIC(const InputParameters & parameters) :
+    InitialCondition(parameters),
     // Position of the membrane:
     _membrane(getParam<Real>("membrane")),
     _length(getParam<Real>("length")),

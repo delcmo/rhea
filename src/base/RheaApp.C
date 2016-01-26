@@ -2,6 +2,7 @@
 #include "Moose.h"
 #include "AppFactory.h"
 #include "ModulesApp.h"
+#include "MooseSyntax.h"
 
 // Kernels
 #include "RheaMass.h"
@@ -47,14 +48,14 @@ InputParameters validParams<RheaApp>()
 
   params.set<bool>("use_legacy_uo_initialization") = false;
   params.set<bool>("use_legacy_uo_aux_computation") = false;
+  params.set<bool>("use_legacy_output_syntax") = false;
+  
   return params;
 }
 
-RheaApp::RheaApp(const std::string & name, InputParameters parameters) :
-    MooseApp(name, parameters)
+RheaApp::RheaApp(InputParameters parameters) :
+    MooseApp(parameters)
 {
-  srand(processor_id());
-  
   Moose::registerObjects(_factory);
   ModulesApp::registerObjects(_factory);
   RheaApp::registerObjects(_factory);
@@ -75,6 +76,7 @@ RheaApp::registerApps()
   registerApp(RheaApp);
 }
 
+extern "C" void RheaApp__registerObjects(Factory & factory) { RheaApp::registerObjects(factory); }
 void
 RheaApp::registerObjects(Factory & factory)
 {
@@ -116,7 +118,8 @@ RheaApp::registerObjects(Factory & factory)
   registerPostprocessor(TimeStepCFL);
 }
 
+extern "C" void RheaApp__associateSyntax(Syntax & syntax, ActionFactory & action_factory) { RheaApp::associateSyntax(syntax, action_factory); }
 void
-RheaApp::associateSyntax(Syntax & syntax, ActionFactory & action_factory)
+RheaApp::associateSyntax(Syntax & /*syntax*/, ActionFactory & /*action_factory*/)
 {
 }

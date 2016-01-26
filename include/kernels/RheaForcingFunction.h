@@ -28,8 +28,7 @@ class RheaForcingFunction : public Kernel
 {
 public:
 
-  RheaForcingFunction(const std::string & name,
-             InputParameters parameters);
+  RheaForcingFunction(const InputParameters & parameters);
 
 protected:
 

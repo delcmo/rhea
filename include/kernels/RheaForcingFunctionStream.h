@@ -28,8 +28,7 @@ class RheaForcingFunctionStream : public Kernel
 {
 public:
 
-  RheaForcingFunctionStream(const std::string & name,
-             InputParameters parameters);
+  RheaForcingFunctionStream(const InputParameters & parameters);
 
 protected:
 

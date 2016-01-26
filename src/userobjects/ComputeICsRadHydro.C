@@ -28,8 +28,8 @@ InputParameters validParams<ComputeICsRadHydro>()
   return params;
 }
 
-ComputeICsRadHydro::ComputeICsRadHydro(const std::string & name, InputParameters parameters) :
-    GeneralUserObject(name, parameters),
+ComputeICsRadHydro::ComputeICsRadHydro(const InputParameters & parameters) :
+    GeneralUserObject(parameters),
     // Boolean
     _is_dmsl_form(getParam<bool>("is_dimensional_form")),
     // Physical properties

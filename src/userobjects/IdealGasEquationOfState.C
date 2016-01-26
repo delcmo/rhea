@@ -12,8 +12,8 @@ InputParameters validParams<IdealGasEquationOfState>()
   return params;
 }
 
-IdealGasEquationOfState::IdealGasEquationOfState(const std::string & name, InputParameters parameters) :
-  EquationOfState(name, parameters),
+IdealGasEquationOfState::IdealGasEquationOfState(const InputParameters & parameters) :
+  EquationOfState(parameters),
     _gamma(getParam<Real>("gamma")),
     _Cv(getParam<Real>("Cv"))
 {

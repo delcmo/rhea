@@ -14,7 +14,7 @@ class ComputeICsRadHydro : public GeneralUserObject
 {
 public:
   // Constructor
-  ComputeICsRadHydro(const std::string & name, InputParameters parameters);
+  ComputeICsRadHydro(const InputParameters & parameters);
 
   // Destructor
   virtual ~ComputeICsRadHydro();

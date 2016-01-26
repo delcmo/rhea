@@ -23,8 +23,8 @@ InputParameters validParams<RheaBCs>()
   return params;
 }
 
-RheaBCs::RheaBCs(const std::string & name, InputParameters parameters) :
-    IntegratedBC(name, parameters),
+RheaBCs::RheaBCs(const InputParameters & parameters) :
+    IntegratedBC(parameters),
     // Name of the equation:
     _eqn_type("continuity x_momentum energy radiation invalid", getParam<std::string>("equation_name")),
     // Coupled variables:
@@ -49,7 +49,6 @@ RheaBCs::RheaBCs(const std::string & name, InputParameters parameters) :
     // Integers for jacobian terms
     _rho_nb(coupled("rho")),
     _rhou_nb(coupled("rhou")),
-    _rhoE_nb(coupled("rhoE")),
     _epsilon_nb(coupled("epsilon"))
 {
   // Compute press_hat_pre and press_hat_post

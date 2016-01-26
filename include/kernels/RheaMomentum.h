@@ -27,8 +27,7 @@ class RheaMomentum : public Kernel
 {
 public:
 
-  RheaMomentum(const std::string & name,
-             InputParameters parameters);
+  RheaMomentum(const InputParameters & parameters);
 
 protected:
  

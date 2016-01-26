@@ -26,7 +26,7 @@ class InternalEnergyAux : public AuxKernel
 {
 public:
 
-  InternalEnergyAux(const std::string & name, InputParameters parameters);
+  InternalEnergyAux(const InputParameters & parameters);
 
 protected:
   virtual Real computeValue();

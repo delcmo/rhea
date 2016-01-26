@@ -13,6 +13,7 @@
 /****************************************************************/
 
 #include "TemperatureAux.h"
+#include "MooseMesh.h"
 
 template<>
 InputParameters validParams<TemperatureAux>()
@@ -29,8 +30,8 @@ InputParameters validParams<TemperatureAux>()
   return params;
 }
 
-TemperatureAux::TemperatureAux(const std::string & name, InputParameters parameters) :
-    AuxKernel(name, parameters),
+TemperatureAux::TemperatureAux(const InputParameters & parameters) :
+    AuxKernel(parameters),
     // Coupled variables
     _rho(coupledValue("rho")),
     _rhou(coupledValue("rhou")),

@@ -17,6 +17,7 @@ to rho_bar, m_bar and E_bar defined as the product of the usual density, momentu
 A computed by the function AreaFunction.
 **/
 #include "RadTempAux.h"
+#include "MooseMesh.h"
 
 template<>
 InputParameters validParams<RadTempAux>()
@@ -29,8 +30,8 @@ InputParameters validParams<RadTempAux>()
   return params;
 }
 
-RadTempAux::RadTempAux(const std::string & name, InputParameters parameters) :
-    AuxKernel(name, parameters),
+RadTempAux::RadTempAux(const InputParameters & parameters) :
+    AuxKernel(parameters),
     // Coupled variables
     _eps(coupledValue("radiation")),
     // Constant

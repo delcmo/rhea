@@ -13,6 +13,7 @@
 /****************************************************************/
 
 #include "RheaMomentum.h"
+#include "MooseMesh.h"
 
 /**
 This Kernel computes the convection flux of the continuity equation.
@@ -36,9 +37,8 @@ InputParameters validParams<RheaMomentum>()
   return params;
 }
 
-RheaMomentum::RheaMomentum(const std::string & name,
-                       InputParameters parameters) :
-  Kernel(name, parameters),
+RheaMomentum::RheaMomentum(const InputParameters & parameters) :
+  Kernel(parameters),
     // Boolean
     _is_dmsl_form(getParam<bool>("is_dimensional_form")),
     // Coupled values:
@@ -54,7 +54,7 @@ RheaMomentum::RheaMomentum(const std::string & name,
     // Integers for jacobian terms
     _rho_nb(coupled("rho")),
     _rhoE_nb(coupled("rhoE")),
-    _epsilon_nb(coupled("epsilon"))
+    _epsilon_nb(coupled("radiation"))
 {
   if (_mesh.dimension()!=1)
     mooseError("The current implementation of '" << this->name() << "' can only be used with 1-D mesh.");

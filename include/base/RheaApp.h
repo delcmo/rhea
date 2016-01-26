@@ -11,7 +11,7 @@ InputParameters validParams<RheaApp>();
 class RheaApp : public MooseApp
 {
 public:
-  RheaApp(const std::string & name, InputParameters parameters);
+  RheaApp(InputParameters parameters);
   virtual ~RheaApp();
 
   static void registerApps();

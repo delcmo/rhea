@@ -31,9 +31,8 @@ InputParameters validParams<RheaForcingFunction>()
   return params;
 }
 
-RheaForcingFunction::RheaForcingFunction(const std::string & name,
-                       InputParameters parameters) :
-  Kernel(name, parameters),
+RheaForcingFunction::RheaForcingFunction(const InputParameters & parameters) :
+  Kernel(parameters),
     // Declare equation types
     _equ_name(getParam<std::string>("equation_name")),
     _equ_type("CONTINUITY, MOMENTUM, ENERGY, RADIATION, INVALID", "INVALID"),

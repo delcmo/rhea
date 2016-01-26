@@ -14,7 +14,7 @@ InputParameters validParams<EntropyViscosityCoefficient>();
 class EntropyViscosityCoefficient : public Material
 {
 public:
-  EntropyViscosityCoefficient(const std::string & name, InputParameters parameters);
+  EntropyViscosityCoefficient(const InputParameters & parameters);
 
 protected:
   virtual void computeQpProperties();

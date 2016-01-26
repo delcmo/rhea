@@ -8,8 +8,8 @@ InputParameters validParams<EquationOfState>()
   return params;
 }
 
-EquationOfState::EquationOfState(const std::string & name, InputParameters parameters) :
-    GeneralUserObject(name, parameters)
+EquationOfState::EquationOfState(const InputParameters & parameters) :
+    GeneralUserObject(parameters)
 {}
 
 EquationOfState::~EquationOfState()

@@ -36,8 +36,7 @@ public:
   /**
    * Constructor: Same as the rest of the MOOSE Objects
    */
-  RheaIC(const std::string & name,
-            InputParameters parameters);
+  RheaIC(const InputParameters & parameters);
 
   virtual Real value(const Point & p);
 

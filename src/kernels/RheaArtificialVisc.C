@@ -13,6 +13,8 @@
 /****************************************************************/
 
 #include "RheaArtificialVisc.h"
+#include "MooseMesh.h"
+
 /**
 This function computes the dissipative terms for all of the equations. It only works in 1-D
  */
@@ -27,9 +29,8 @@ InputParameters validParams<RheaArtificialVisc>()
   return params;
 }
 
-RheaArtificialVisc::RheaArtificialVisc(const std::string & name,
-                       InputParameters parameters) :
-  Kernel(name, parameters),
+RheaArtificialVisc::RheaArtificialVisc(const InputParameters & parameters) :
+  Kernel(parameters),
     // Declare equation types
     _equ_type("continuity x_momentum energy radiation invalid", getParam<std::string>("equation_name")),
     // Material properties:
