@@ -13,7 +13,6 @@
 /****************************************************************/
 
 #include "RheaForcingFunctionStream.h"
-
 /**
 This function computes the dissipative terms for all of the equations. It is dimension agnostic.
  */

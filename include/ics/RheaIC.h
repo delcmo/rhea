@@ -18,7 +18,7 @@
 // MOOSE Includes
 #include "InitialCondition.h"
 #include "IdealGasEquationOfState.h"
-#include "ComputeICsRadHydro.h"
+#include "InputFileSpecifiedICsRadHydro.h"
 
 // Forward Declarations
 class RheaIC;
@@ -50,7 +50,7 @@ private:
   const IdealGasEquationOfState & _eos;
 
   // Userobject computing the ICs
-  const ComputeICsRadHydro & _ics;
+  const InputFileSpecifiedICsRadHydro & _ics;
 };
 
 #endif // RHEAIC_H

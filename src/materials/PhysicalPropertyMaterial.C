@@ -47,7 +47,7 @@ PhysicalPropertyMaterial::PhysicalPropertyMaterial(const InputParameters & param
     // Equation of state
     _eos(getUserObject<EquationOfState>("eos")),
     // Userobject computing the ICs
-    _ics(getUserObject<ComputeICsRadHydro>("ics"))
+    _ics(getUserObject<InputFileSpecifiedICsRadHydro>("ics"))
 {
   // Computed the constant total and absorption cross-sections from the initial conditions
   Real a_hat_0 = std::sqrt(_ics.a()*_ics.T_hat_pre()*_ics.T_hat_pre()*_ics.T_hat_pre()*_ics.T_hat_pre()/(_ics.rho_hat_pre()*_ics.P()));
@@ -88,6 +88,11 @@ PhysicalPropertyMaterial::PhysicalPropertyMaterial(const InputParameters & param
     Real C0 = std::sqrt(_ics.SIGMA_A()*3.*_ics.K());
     _sigma_hat_a = _ics.SIGMA_A()/C0;
     _sigma_hat_t = _sigma_hat_a;
+    // Output the constant total and absorption cross sections
+    std::cout.precision(10);
+    std::cout<<"Constant total cross section: "<< _sigma_hat_t << std::endl;
+    std::cout<<"Constant absorption cross section: "<< _sigma_hat_a << std::endl;
+    std::cout<<"--------------------------------------------------------------"<<std::endl;
   }
 }
 

@@ -51,6 +51,7 @@ public:
   Real P() const { return _P;};
   Real K() const { return _K;};
   Real SIGMA_A() const { return _SIGMA_A;};
+  Real C() const { return _C;};
   Real a() const { return _a;};
   Real c() const { return _sp;};
 
@@ -64,6 +65,7 @@ protected:
   Real _Mach_inlet;
   Real _K;
   Real _SIGMA_A;
+  Real _C;
 
   // Pre-shock parameters
   Real _rho_hat_pre;

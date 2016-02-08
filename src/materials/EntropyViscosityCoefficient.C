@@ -6,6 +6,8 @@ InputParameters validParams<EntropyViscosityCoefficient>()
 {
   InputParameters params = validParams<Material>();
 
+  // Boolean
+  params.addParam<bool>("is_dimensional_form", true, "boolean to solve the equations in a dimensional form");
   // Coupled variables:
   params.addRequiredCoupledVar("rho", "density");
   params.addRequiredCoupledVar("rhou", "momentum");
@@ -21,12 +23,16 @@ InputParameters validParams<EntropyViscosityCoefficient>()
   params.addParam<bool>("use_jumps", true, "Use jumps");
   // Userobject:
   params.addRequiredParam<UserObjectName>("eos", "Equation of state");
+  // Userobject computing the ICs
+  params.addRequiredParam<UserObjectName>("ics", "parameters for ics.");
 
   return params;
 }
 
 EntropyViscosityCoefficient::EntropyViscosityCoefficient(const InputParameters & parameters) :
     Material(parameters),
+    // Boolean
+    _is_dmsl_form(getParam<bool>("is_dimensional_form")),
     // Coupled variables:
     _rho(coupledValue("rho")),
     _rho_old(coupledValueOld("rho")),
@@ -53,7 +59,11 @@ EntropyViscosityCoefficient::EntropyViscosityCoefficient(const InputParameters &
     _is_first_order_viscosity(getParam<bool>("is_first_order_viscosity")),
     _use_jumps(getParam<bool>("use_jumps")),
     // UserObject:
-    _eos(getUserObject<EquationOfState>("eos"))
+    _eos(getUserObject<EquationOfState>("eos")),
+    // Userobject computing the ICs
+    _ics(getUserObject<InputFileSpecifiedICsRadHydro>("ics")),
+    // Non-dimensional number Po
+    _Po(_is_dmsl_form ? 1. : _ics.P())
 {
   if (_Cjump < 0.)
     mooseError(this->name() << ": the coefficient Cjump has to be positive.");
@@ -67,9 +77,9 @@ EntropyViscosityCoefficient::computeQpProperties()
 
   // Compute first order viscosity:
   Real vel = _rhou[_qp]/_rho[_qp];
-  Real sp = std::sqrt(_eos.c2_from_p_rho(_rho[_qp], _press[_qp], _eps[_qp]));
+  Real sp = std::sqrt(_eos.c2_from_p_rho(_rho[_qp], _press[_qp], _Po*_eps[_qp]));
   if (sp < 0)
-    sp = std::sqrt(_eos.c2_from_p_rho(_rho_old[_qp], _press_old[_qp], _eps_old[_qp]));
+    sp = std::sqrt(_eos.c2_from_p_rho(_rho_old[_qp], _press_old[_qp], _Po*_eps_old[_qp]));
   _kappa_max[_qp] = 0.5*h_cell*(std::fabs(vel) + sp);
 
   // Weights for BDF2
@@ -97,7 +107,7 @@ EntropyViscosityCoefficient::computeQpProperties()
 
   // Compute norm:
 //  Real norm = std::min(_rho[_qp]*sp*sp, _press[_qp]);
-  Real norm = _rho[_qp]*sp*sp;
+  Real norm = 0.5*_rho[_qp]*sp*sp;
 
   // Compute high-order viscosity coefficient:
   Real kappa_e = _t_step == 1 ? _kappa_max[_qp] : h_cell*h_cell*(std::max(std::fabs(residual), jump_value)) / norm;

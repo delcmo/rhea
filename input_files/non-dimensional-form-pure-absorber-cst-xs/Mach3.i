@@ -16,8 +16,6 @@ is_dimensional_form = false
 cross_section_name = pure_absorber
 speed_of_light = 2.99792e+2
 a = 1.372e-2
-#sigma_a0 = '7216.875 0. 3.5'
-#sigma_t0 = '7216.875 0. 3.5'
 
 ###### Initial Conditions #######
 Mach_inlet = 3.
@@ -45,18 +43,6 @@ membrane = 0.
   [./ics]
     type = ComputeICsRadHydro
     eos = eos
-  [../]
-
-  [./JumpGradPress]
-    type = JumpGradientInterface
-    variable = pressure
-    jump_name = jump_grad_press
-  [../]
-
-  [./JumpGradDens]
-    type = JumpGradientInterface
-    variable = rho
-    jump_name = jump_grad_dens
   [../]
 []
 
@@ -152,7 +138,7 @@ membrane = 0.
   [../]
 
   [./MomHyperbloic]
-    type = RheaMomentum
+    type = RheaNonDimensionalMomentum
     variable = rhou
     rho = rho
     rhoE = rhoE
@@ -162,7 +148,7 @@ membrane = 0.
   [../]
 
   [./EnergyHyperbolic]
-    type = RheaEnergy
+    type = RheaNonDimensionalEnergy
     variable = rhoE
     rho = rho
     rhou = rhou
@@ -172,7 +158,7 @@ membrane = 0.
   [../]
 
   [./RadiationHyperbolic]
-    type = RheaRadiation
+    type = RheaNonDimensionalRadiation
     variable = epsilon
     rho = rho
     rhou = rhou
@@ -226,16 +212,6 @@ membrane = 0.
 
   [./mach_number]
     family = LAGRANGE
-  [../]
-
-  [./jump_grad_press]
-    family = MONOMIAL
-    order = CONSTANT
-  [../]
-
-  [./jump_grad_dens]
-    family = MONOMIAL
-    order = CONSTANT
   [../]
 
   [./kappa_max]
@@ -343,7 +319,7 @@ membrane = 0.
 
 [Materials]
   [./EntViscCoeff]
-    type = EntropyViscosityCoefficient
+    type = NonDimensionalEntropyViscosityCoefficient
     block = '0'
     rho = rho
     rhou = rhou
@@ -352,10 +328,11 @@ membrane = 0.
     jump_press = jump_grad_press
     jump_dens = jump_grad_dens
     eos = eos
+    ics = ics
   [../]
 
   [./PhysicalPropertyMaterial]
-    type = PhysicalPropertyMaterial
+    type = NonDimensionalPhysicalPropertyMaterial
     block = '0'
     rho = rho
     pressure = pressure
@@ -370,12 +347,13 @@ membrane = 0.
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 [BCs]
-  [./MassRight]
+  [./MassBC]
     type = RheaBCs
     variable = rho
     equation_name = continuity
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
@@ -383,12 +361,13 @@ membrane = 0.
     boundary = 'right left'
   [../]
 
-  [./MomentumRight]
+  [./MomentumBC]
     type = RheaBCs
     variable = rhou
     equation_name = x_momentum
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
@@ -396,12 +375,13 @@ membrane = 0.
     boundary = 'right left'
   [../]
 
-  [./EnergyRight]
+  [./EnergyBC]
     type = RheaBCs
     variable = rhoE
     equation_name = energy
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
@@ -409,17 +389,32 @@ membrane = 0.
     boundary = 'right left'
   [../]
   
-  [./RadiationLeft]
-    type = RheaBCs
+# [./RadiationBC]
+#    type = RheaBCs
+#    variable = epsilon
+#    equation_name = radiation
+#    rho = rho
+#    rhou = rhou
+#    rhoE = rhoE
+#    epsilon = epsilon
+#    pressure = pressure
+#    eos = eos
+#    ics = ics
+#    boundary = 'right left'
+#  [../]
+
+  [./RadiationBCleft]
+    type = DirichletBC
     variable = epsilon
-    equation_name = radiation
-    rho = rho
-    rhou = rhou
-    epsilon = epsilon
-    pressure = pressure
-    eos = eos
-    ics = ics    
-    boundary = 'right left'
+    value = 0.01372 # 1.
+    boundary = 'left'
+  [../]
+
+  [./RadiationBCright]
+    type = DirichletBC
+    variable = epsilon
+    value = 2.467096126 # 179.8175019
+    boundary = 'right'
   [../]
 []
 
@@ -468,6 +463,7 @@ membrane = 0.
   type = Transient
   scheme = 'bdf2'
   end_time = 10.
+  num_steps = 10
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8

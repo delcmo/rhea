@@ -3,7 +3,7 @@
 
 #include "IntegratedBC.h"
 #include "IdealGasEquationOfState.h"
-#include "ComputeICsRadHydro.h"
+#include "InputFileSpecifiedICsRadHydro.h"
 
 // Forward Declarations
 class RheaBCs;
@@ -58,7 +58,7 @@ protected:
   const IdealGasEquationOfState & _eos;
 
   // Userobject computing the ICs
-  const ComputeICsRadHydro & _ics;
+  const InputFileSpecifiedICsRadHydro & _ics;
 
   // Non-dimensional numbers
   Real _Po;
@@ -67,6 +67,7 @@ protected:
   // Integers jacobian terms
   unsigned int _rho_nb;
   unsigned int _rhou_nb;
+  unsigned int _rhoE_nb;
   unsigned int _epsilon_nb;
 };
 

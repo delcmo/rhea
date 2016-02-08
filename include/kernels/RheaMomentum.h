@@ -17,7 +17,7 @@
 
 #include "Kernel.h"
 #include "EquationOfState.h"
-#include "ComputeICsRadHydro.h"
+#include "InputFileSpecifiedICsRadHydro.h"
 
 class RheaMomentum;
 
@@ -48,7 +48,7 @@ private:
 
   // userobjects: EoS and ICs
   const EquationOfState & _eos;
-  const ComputeICsRadHydro & _ics;
+  const InputFileSpecifiedICsRadHydro & _ics;
 
   // Non-dimensional number Po
   Real _Po;

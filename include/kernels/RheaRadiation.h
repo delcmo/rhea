@@ -17,7 +17,7 @@
 
 #include "Kernel.h"
 #include "EquationOfState.h"
-#include "ComputeICsRadHydro.h"
+#include "InputFileSpecifiedICsRadHydro.h"
 
 class RheaRadiation;
 
@@ -55,7 +55,7 @@ private:
   const MaterialProperty<Real> & _D;
 
   // Userobject computing the ICs
-  const ComputeICsRadHydro & _ics;
+  const InputFileSpecifiedICsRadHydro & _ics;
 
   // Dimensional numbers
   Real _c;

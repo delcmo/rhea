@@ -51,7 +51,7 @@ RheaEnergy::RheaEnergy(const InputParameters & parameters) :
     // Material property:
     _sigma_a(getMaterialProperty<Real>("sigma_a")),
     // Userobject computing the ICs
-    _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    _ics(getUserObject<InputFileSpecifiedICsRadHydro>("ics")),
     // Dimensional numbers
     _c(_is_dmsl_form ? _ics.c() : 1.),
     _a(_is_dmsl_form ? _ics.a() : 1.),
@@ -81,7 +81,7 @@ Real RheaEnergy::computeQpResidual()
   relaxation *= _SIGMA;
 
   // Return the flux:
-  return -conv*_grad_test[_i][_qp](0) + (relaxation+_Po*vel*_grad_eps[_qp](0)/3)*_test[_i][_qp];
+  return -conv*_grad_test[_i][_qp](0) + _Po*(relaxation+vel*_grad_eps[_qp](0)/3)*_test[_i][_qp];
 }
 
 Real RheaEnergy::computeQpJacobian()

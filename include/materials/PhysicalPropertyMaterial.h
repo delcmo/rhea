@@ -4,7 +4,7 @@
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "EquationOfState.h"
-#include "ComputeICsRadHydro.h"
+#include "InputFileSpecifiedICsRadHydro.h"
 
 //Forward Declarations
 class PhysicalPropertyMaterial;
@@ -62,7 +62,7 @@ private:
   const EquationOfState & _eos;
 
   // Userobject computing the ICs
-  const ComputeICsRadHydro & _ics;
+  const InputFileSpecifiedICsRadHydro & _ics;
 };
 
 #endif // PHYSICALPRPERTYMATERIAL_H

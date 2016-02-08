@@ -9,6 +9,9 @@
 #include "RheaMomentum.h"
 #include "RheaEnergy.h"
 #include "RheaRadiation.h"
+#include "RheaNonDimensionalMomentum.h"
+#include "RheaNonDimensionalEnergy.h"
+#include "RheaNonDimensionalRadiation.h"
 #include "RheaArtificialVisc.h"
 #include "RheaForcingFunction.h"
 #include "RheaForcingFunctionStream.h"
@@ -32,11 +35,14 @@
 #include "EquationOfState.h"
 #include "IdealGasEquationOfState.h"
 #include "ComputeICsRadHydro.h"
+#include "InputFileSpecifiedICsRadHydro.h"
 #include "JumpGradientInterface.h"
 
 //Materials
 #include "PhysicalPropertyMaterial.h"
 #include "EntropyViscosityCoefficient.h"
+#include "NonDimensionalPhysicalPropertyMaterial.h"
+#include "NonDimensionalEntropyViscosityCoefficient.h"
 
 // Postprocessors
 #include "TimeStepCFL.h"
@@ -85,6 +91,9 @@ RheaApp::registerObjects(Factory & factory)
   registerKernel(RheaMomentum);
   registerKernel(RheaEnergy);
   registerKernel(RheaRadiation);
+  registerKernel(RheaNonDimensionalMomentum);
+  registerKernel(RheaNonDimensionalEnergy);
+  registerKernel(RheaNonDimensionalRadiation);
   registerKernel(RheaArtificialVisc);
   registerKernel(RheaForcingFunction);
   registerKernel(RheaForcingFunctionStream);
@@ -108,11 +117,14 @@ RheaApp::registerObjects(Factory & factory)
   registerUserObject(EquationOfState);
   registerUserObject(IdealGasEquationOfState);
   registerUserObject(ComputeICsRadHydro);
+  registerUserObject(InputFileSpecifiedICsRadHydro);
   registerUserObject(JumpGradientInterface);
 
   // Materials
   registerMaterial(PhysicalPropertyMaterial);
   registerMaterial(EntropyViscosityCoefficient);
+  registerMaterial(NonDimensionalPhysicalPropertyMaterial);
+  registerMaterial(NonDimensionalEntropyViscosityCoefficient);
 
   // Postprocessors
   registerPostprocessor(TimeStepCFL);

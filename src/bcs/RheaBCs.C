@@ -12,6 +12,7 @@ InputParameters validParams<RheaBCs>()
   // Coupled variables:
   params.addRequiredCoupledVar("rho", "density");
   params.addRequiredCoupledVar("rhou", "momentum");
+  params.addRequiredCoupledVar("rhoE", "energy");  
   params.addCoupledVar("epsilon", "epsilon");
   // Coupled aux variables
   params.addRequiredCoupledVar("pressure", "pressure");
@@ -42,13 +43,14 @@ RheaBCs::RheaBCs(const InputParameters & parameters) :
     // Equation of state:
     _eos(getUserObject<IdealGasEquationOfState>("eos")),
     // Userobject computing the ICs
-    _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    _ics(getUserObject<InputFileSpecifiedICsRadHydro>("ics")),
     // Non-dimensional numbers
     _Po(getParam<bool>("is_dimensional_form") ? 1. : _ics.P()),
     _K(getParam<bool>("is_dimensional_form") ? 1. : _ics.K()),
     // Integers for jacobian terms
     _rho_nb(coupled("rho")),
     _rhou_nb(coupled("rhou")),
+    _rhoE_nb(coupled("rhoE")),
     _epsilon_nb(coupled("epsilon"))
 {
   // Compute press_hat_pre and press_hat_post
@@ -65,12 +67,12 @@ RheaBCs::computeQpResidual()
   Real Mach_old = vel_old / std::sqrt(_eos.c2_from_p_rho(_rho_old[_qp], _pressure_old[_qp], _epsilon_old[_qp]));
 
   // Declare variables  that are used in the fluxes:
-  Real rho_bc, rhou_bc, vel_bc, e_bc, press_bc, rhoE_bc;
+  Real rho_bc, rhou_bc, vel_bc, e_bc, press_bc, rhoE_bc, epsilon_bc;
 
   // inlet or outlet:
   if ( vel*_normals[_qp](0) <0 ) // Inlet
   {
-    if (Mach_old <= 1) // subsonic
+    if (Mach_old <= 1) // subsonic inlet
     {
       press_bc = _press_hat_pre;
       rho_bc = _eos.rho_from_p_T(press_bc, _ics.T_hat_pre());
@@ -78,8 +80,9 @@ RheaBCs::computeQpResidual()
       rhou_bc = _rhou[_qp];
       rhoE_bc = _u[_qp];
       vel_bc = vel;
+      epsilon_bc = _ics.eps_hat_pre();
     }
-    else // supersonic
+    else // supersonic inlet
     {
       press_bc = _press_hat_pre;
       rho_bc = _eos.rho_from_p_T(press_bc, _ics.T_hat_pre());
@@ -87,26 +90,37 @@ RheaBCs::computeQpResidual()
       vel_bc = _ics.vel_hat_pre();
       rhou_bc = rho_bc*vel_bc;
       rhoE_bc = rho_bc*(e_bc+0.5*vel_bc*vel_bc);
+      epsilon_bc = _ics.eps_hat_pre();
     }
   }
   else // outlet
   {
-    if (Mach_old < 1) // subsonic
-    {
-      press_bc = _press_hat_post;
-      rho_bc = _rho[_qp];
-      rhou_bc = _rhou[_qp];
-      vel_bc = vel;
-      rhoE_bc = _u[_qp];
-    }
-    else // supersonic
-    {
-      press_bc = _pressure[_qp];
-      rho_bc = _rho[_qp];
-      rhou_bc = _rhou[_qp];
-      vel_bc = vel;
-      rhoE_bc = _u[_qp];
-    }
+//    if (Mach_old < 1) // subsonic outlet
+//    {
+//      press_bc = _press_hat_post;
+//      rho_bc = _rho[_qp];
+//      rhou_bc = _rhou[_qp];
+//      vel_bc = vel;
+//      rhoE_bc = _u[_qp];
+//      epsilon_bc = _epsilon[_qp];
+//    }
+//    else // supersonic outlet
+//    {
+
+//      press_bc = _press_hat_post; // _pressure[_qp];
+//      rho_bc = _rho[_qp];
+//      rhou_bc = _rhou[_qp];
+//      vel_bc = vel;
+//      rhoE_bc = _u[_qp];
+//      epsilon_bc = _epsilon[_qp];
+    press_bc = _pressure[_qp];
+    rho_bc = _rho[_qp];
+    vel_bc = _ics.mach_hat_post()*std::sqrt(_eos.c2_from_p_rho(rho_bc, press_bc, 0.));
+    rhou_bc = rho_bc*vel_bc;
+    rhoE_bc = rho_bc*(_eos.e_from_p_rho(press_bc, rho_bc)+0.5*vel_bc*vel_bc);
+    Real temp = _eos.temperature_from_p_rho(press_bc, rho_bc);
+    epsilon_bc = _ics.a()*temp*temp*temp*temp;
+//    }
   }
 
   // Switch statement for type of equation:
@@ -117,14 +131,17 @@ RheaBCs::computeQpResidual()
     return rho_bc*vel_bc*_normals[_qp](0)*_test[_i][_qp];
     break;
   case x_momentum:
-    return (rhou_bc*vel_bc +press_bc + _Po*_epsilon[_qp]/3)*_normals[_qp](0)*_test[_i][_qp];
+    return (rhou_bc*vel_bc +press_bc + epsilon_bc/3)*_normals[_qp](0)*_test[_i][_qp];
     break;
   case energy:
     return (rhoE_bc+press_bc)*vel_bc*_normals[_qp](0)*_test[_i][_qp];
     break;
   case radiation:
-    eps = -0.5*(_normals[_qp](0)-1)*_ics.eps_hat_pre() + 0.5*(1+_normals[_qp](0))*_ics.eps_hat_post();
-    return (4*vel*_u[_qp]/3*_normals[_qp](0)+0.5*_K*_D[_qp]*(_u[_qp]-eps))*_test[_i][_qp];
+      eps = epsilon_bc;// -0.5*(_normals[_qp](0)-1)*_ics.eps_hat_pre() + 0.5*(1+_normals[_qp](0))*_ics.eps_hat_post();
+//      eps = 0.5*(1+_normals[_qp](0))*_ics.eps_hat_post();
+      return (4*vel_bc*epsilon_bc/3*_normals[_qp](0)+0.5*(epsilon_bc-eps))*_test[_i][_qp];
+//      return (4*vel_bc*epsilon_bc/3*_normals[_qp](0))*_test[_i][_qp];
+//      return 0.5*(_u[_qp]-eps)*_test[_i][_qp];
     break;
   default:
     mooseError("The equation name is not supported in the \"RheaBCs\" type of boundary condition.");

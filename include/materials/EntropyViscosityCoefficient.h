@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "MaterialProperty.h"
 #include "EquationOfState.h"
+#include "InputFileSpecifiedICsRadHydro.h"
 
 //Forward Declarations
 class EntropyViscosityCoefficient;
@@ -20,6 +21,8 @@ protected:
   virtual void computeQpProperties();
 
 private:
+  // Boolean
+  bool _is_dmsl_form;
 
   // Coupled variables
   VariableValue & _rho;
@@ -53,6 +56,12 @@ private:
 
   // UserObject: equation of state
   const EquationOfState & _eos;
+
+  // Userobject computing the ICs
+  const InputFileSpecifiedICsRadHydro & _ics;
+
+  // Non-dimensional number
+  Real _Po;
 };
 
 #endif // ENTROPYVISCOSITYCOEFFICIENT_H

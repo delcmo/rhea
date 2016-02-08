@@ -38,7 +38,7 @@ RheaIC::RheaIC(const InputParameters & parameters) :
     // Equation of state
     _eos(getUserObject<IdealGasEquationOfState>("eos")),
     // Userobject computing the ICs
-    _ics(getUserObject<ComputeICsRadHydro>("ics"))
+    _ics(getUserObject<InputFileSpecifiedICsRadHydro>("ics"))
 {
   // Check the value of Cv used in the equation of state
   Real a_hat_0 = std::sqrt(_ics.a()*_ics.T_hat_pre()*_ics.T_hat_pre()*_ics.T_hat_pre()*_ics.T_hat_pre()/(_ics.rho_hat_pre()*_ics.P()));

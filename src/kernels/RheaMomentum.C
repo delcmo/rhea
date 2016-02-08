@@ -48,7 +48,7 @@ RheaMomentum::RheaMomentum(const InputParameters & parameters) :
     // Equation of state
     _eos(getUserObject<EquationOfState>("eos")),
     // Userobject computing the ICs
-    _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    _ics(getUserObject<InputFileSpecifiedICsRadHydro>("ics")),
     // Non-dimensional number Po
     _Po(_is_dmsl_form ? 1. : _ics.P()),
     // Integers for jacobian terms

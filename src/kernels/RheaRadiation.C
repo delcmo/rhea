@@ -51,7 +51,7 @@ RheaRadiation::RheaRadiation(const InputParameters & parameters) :
     _sigma_a(getMaterialProperty<Real>("sigma_a")),
     _D(getMaterialProperty<Real>("diffusion")),
     // Userobject computing the ICs
-    _ics(getUserObject<ComputeICsRadHydro>("ics")),
+    _ics(getUserObject<InputFileSpecifiedICsRadHydro>("ics")),
     // Dimensional numbers
     _c(_is_dmsl_form ? _ics.c() : 1.),
     _a(_is_dmsl_form ? _ics.a() : 1.),

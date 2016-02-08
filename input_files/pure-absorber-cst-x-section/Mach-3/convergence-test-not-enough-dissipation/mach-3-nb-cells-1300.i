@@ -6,11 +6,10 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
-isRadiation = false
-Cjump = 1.
+Cjump = 1.5
 is_first_order_viscosity = false
 use_jumps = false
-cfl = 2.
+cfl = 10
 
 ###### Constants #######
 cross_section_name = pure_absorber
@@ -20,12 +19,21 @@ a = 1.372e-2
 #sigma_t0 = '1.e+006 0. 3.5'
 
 ###### Initial Conditions #######
-Mach_inlet = 1.05
-rho_hat_0 = 1.
-T_hat_0 = 0.12156013625
+#T_hat_0 = 0.1
+#rho_hat_0 = 1.
+#rho_hat_pre = 1.
+#T_hat_pre = 0.1
+#vel_hat_pre = 3.000000005208332876e+00
+#red_hat_pre = 9.995000000747896740e-01
+#rho_hat_post = 3.002168009589057274e+00
+#T_hat_post = 3.661911903509155852e+00
+#vel_hat_post = 9.992778520115688234e-01
+#red_hat_post = 1.798474472847772745e+02
+Mach_inlet = 3.
 P = 1.e-4
 K = 1.
 SIGMA_A = 1.e6
+C = 1.73205080757e3
 membrane = 0.
 []
 
@@ -39,11 +47,12 @@ membrane = 0.
   [./eos]
     type = IdealGasEquationOfState
   	gamma = 1.6666667
-  	Cv = 0.221804 # 1.2348000000000001e-001
+    Cv = 0.14472799784454 # 0.12348 # 0.221804 # 1.2348000000000001e-001 # 0.14472799784454
   [../]
   
   [./ics]
-    type = ComputeICsRadHydro
+#    type = ComputeICsRadHydro
+    type = InputFileSpecifiedICsRadHydro
     eos = eos
   [../]
 
@@ -64,9 +73,9 @@ membrane = 0.
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 500
-  xmin = -5.271055796326370307e-02 # -4.e-2
-  xmax = 4.622354837831620100e-02 # 4.e-2
+  nx =1300
+  xmin = -1.600337819828266672e-02 # -2.310378875480847971e-02 # -1.310054493449609447e-01
+  xmax = 5.004927844200923737e-03 # 1.310054493449609447e-01
   block_id = '0'
 []
 
@@ -78,7 +87,7 @@ membrane = 0.
 [Variables]
   [./rho]
     family = LAGRANGE
-    scaling = 1e+4
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -88,7 +97,7 @@ membrane = 0.
 
   [./rhou]
     family = LAGRANGE
-    scaling = 1e+4
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -98,7 +107,7 @@ membrane = 0.
 
   [./rhoE]
     family = LAGRANGE
-    scaling = 1e+4
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -108,7 +117,7 @@ membrane = 0.
 
   [./epsilon]
     family = LAGRANGE
-    scaling = 1e+4
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -158,6 +167,7 @@ membrane = 0.
     rhoE = rhoE
     radiation = epsilon
     eos = eos
+    ics = ics
   [../]
 
   [./EnergyHyperbolic]
@@ -180,7 +190,7 @@ membrane = 0.
     ics = ics    
   [../]
 
- [./MassVisc]
+  [./MassVisc]
     type = RheaArtificialVisc
     variable = rho
     equation_name = continuity
@@ -276,6 +286,7 @@ membrane = 0.
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    execute_on = 'initial linear'
   [../]
 
   [./TemperatureAK]
@@ -285,12 +296,14 @@ membrane = 0.
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    execute_on = 'initial linear'
   [../]
 
   [./RadTempAK]
     type = RadTempAux
     variable = rad_temp
     radiation = epsilon
+    execute_on = 'initial linear'
   [../]
 
   [./MachNumberAK]
@@ -301,36 +314,42 @@ membrane = 0.
     rhoE = rhoE
     epsilon = epsilon
     eos = eos
+    execute_on = 'initial linear'
   [../]
 
   [./KappaMaxAK]
     type = MaterialRealAux
     variable = kappa_max
     property = kappa_max
+    execute_on = 'initial linear'
   [../]
 
   [./KappaAK]
     type = MaterialRealAux
     variable = kappa
     property = kappa
+    execute_on = 'initial linear'
   [../]
 
   [./DiffusionAK]
     type = MaterialRealAux
     variable = diffusion
     property = diffusion
+    execute_on = 'initial linear'
   [../]
 
   [./SigmaA_AK]
   type = MaterialRealAux
     variable = sigma_a
     property = sigma_a
+    execute_on = 'initial linear'
   [../]
 
   [./SigmaT_AK]
   type = MaterialRealAux
     variable = sigma_t
     property = sigma_t
+    execute_on = 'initial linear'
   [../]
 []
 
@@ -351,6 +370,7 @@ membrane = 0.
     jump_press = jump_grad_press
     jump_dens = jump_grad_dens
     eos = eos
+    ics = ics
   [../]
 
   [./PhysicalPropertyMaterial]
@@ -369,12 +389,13 @@ membrane = 0.
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 [BCs]
-  [./MassRight]
+  [./Mass]
     type = RheaBCs
     variable = rho
     equation_name = continuity
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
@@ -382,12 +403,13 @@ membrane = 0.
     boundary = 'right left'
   [../]
 
-  [./MomentumRight]
+  [./Momentum]
     type = RheaBCs
     variable = rhou
     equation_name = x_momentum
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
@@ -395,12 +417,13 @@ membrane = 0.
     boundary = 'right left'
   [../]
 
-  [./EnergyRight]
+  [./Energy]
     type = RheaBCs
     variable = rhoE
     equation_name = energy
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
@@ -408,16 +431,17 @@ membrane = 0.
     boundary = 'right left'
   [../]
   
-  [./RadiationLeft]
+  [./Radiation]
     type = RheaBCs
     variable = epsilon
     equation_name = radiation
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
-    ics = ics    
+    ics = ics
     boundary = 'right left'
   [../]
 []
@@ -466,20 +490,21 @@ membrane = 0.
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 100.
+  end_time = 0.6
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
   nl_rel_tol = 1e-10
-  nl_abs_tol = 1e-7
+  nl_abs_tol = 1e-8
   l_max_its = 50
   nl_max_its = 50
-  trans_ss_check = true
-  ss_check_tol = 1.e-10
+#  num_steps = 3
+#  trans_ss_check = true
+#  ss_check_tol = 1.e-12
   [./TimeStepper]
     type = PostprocessorDT
     postprocessor = dt
-    dt = 1.e-6
+    dt = 1.e-4
   [../]
 []
 
@@ -490,16 +515,18 @@ membrane = 0.
 ##############################################################################################
 
 [Outputs]
+  file_base = mach-3-nb-cells-1300_out
   [./console]
-  type = Console
-  perf_log = true
-  interval = 20
+    type = Console
+    perf_log = true
+    interval = 10
   [../]
-  
+
   [./out]
     type = Exodus
     interval = 20
-    output_initial = true    
+    output_initial = true
+    output_final = true
   [../]
 []
 
