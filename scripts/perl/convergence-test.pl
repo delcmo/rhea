@@ -13,7 +13,9 @@ my @cells_list = (0) x $nb_run;
 @cells_list[0] = $cell_init;
  for (my $i=1; $i<$nb_run; $i++)
   {
-    @cells_list[$i] = 2.*@cells_list[$i-1]
+    if ($ARGV[3] == 0)
+    {@cells_list[$i] = 2.*@cells_list[$i-1];} else{
+    @cells_list[$i] = @cells_list[$i-1]+100;}
   }
 
 # now, we read in a variable that will be the filename of the template input file
