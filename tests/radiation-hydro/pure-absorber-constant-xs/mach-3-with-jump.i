@@ -6,21 +6,23 @@
 [GlobalParams]
 ###### Other parameters #######
 order = FIRST
+Cjump = 1.
+is_first_order_viscosity = false
+use_jumps = true
+cfl = 20
 
-###### Constans #######
-speed_of_light = 299.792
+###### Constants #######
+cross_section_name = pure_absorber
+speed_of_light = 2.99792e+2
 a = 1.372e-2
-#sigma_a0 = '3.9071164263502113e+002 0. 0.'
-#sigma_t0 = '8.5314410158161813e+002 0. 0.'
 
 ###### Initial Conditions #######
-Mach_inlet = 5.
-rho_hat_0 = 1.
-T_hat_0 = 0.1
-P = 1e-4
-K = 1
-SIGMA_A = 1e6
-membrane = 2.5e-2
+Mach_inlet = 3.
+P = 1.e-4
+K = 1.
+SIGMA_A = 1.e6
+C = 1.73205080757e3
+membrane = 0.
 []
 
 #############################################################################
@@ -33,11 +35,12 @@ membrane = 2.5e-2
   [./eos]
     type = IdealGasEquationOfState
   	gamma = 1.6666667
-  	Cv = 1.2348000000000001e-001
+    Cv = 0.14472799784454 # 0.12348 # 0.221804 # 1.2348000000000001e-001 # 0.14472799784454
   [../]
   
   [./ics]
-    type = ComputeICsRadHydro
+#    type = ComputeICsRadHydro
+    type = InputFileSpecifiedICsRadHydro
     eos = eos
   [../]
 
@@ -59,8 +62,8 @@ membrane = 2.5e-2
   type = GeneratedMesh
   dim = 1
   nx = 200
-  xmin = 0.
-  xmax = 5.e-2
+  xmin = -1.600337819828266672e-02 # -2.310378875480847971e-02 # -1.310054493449609447e-01
+  xmax = 5.004927844200923737e-03 # 1.310054493449609447e-01
   block_id = '0'
 []
 
@@ -72,7 +75,7 @@ membrane = 2.5e-2
 [Variables]
   [./rho]
     family = LAGRANGE
-    scaling = 1e+0
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -82,17 +85,17 @@ membrane = 2.5e-2
 
   [./rhou]
     family = LAGRANGE
-    scaling = 1e+0
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
-      ics = ics            
+      ics = ics
     [../]
   [../]
 
   [./rhoE]
     family = LAGRANGE
-    scaling = 1e+0
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
@@ -102,11 +105,11 @@ membrane = 2.5e-2
 
   [./epsilon]
     family = LAGRANGE
-    scaling = 1e+0
+    scaling = 1e+2
     [./InitialCondition]
       type = RheaIC
       eos = eos
-      ics = ics            
+      ics = ics      
     [../]
    [../]
 []
@@ -271,6 +274,7 @@ membrane = 2.5e-2
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    execute_on = 'initial linear'
   [../]
 
   [./TemperatureAK]
@@ -280,12 +284,14 @@ membrane = 2.5e-2
     rhou = rhou
     rhoE = rhoE
     eos = eos
+    execute_on = 'initial linear'
   [../]
 
   [./RadTempAK]
     type = RadTempAux
     variable = rad_temp
     radiation = epsilon
+    execute_on = 'initial linear'
   [../]
 
   [./MachNumberAK]
@@ -296,36 +302,42 @@ membrane = 2.5e-2
     rhoE = rhoE
     epsilon = epsilon
     eos = eos
+    execute_on = 'initial linear'
   [../]
 
   [./KappaMaxAK]
     type = MaterialRealAux
     variable = kappa_max
     property = kappa_max
+    execute_on = 'initial linear'
   [../]
 
   [./KappaAK]
     type = MaterialRealAux
     variable = kappa
     property = kappa
+    execute_on = 'initial linear'
   [../]
 
   [./DiffusionAK]
     type = MaterialRealAux
     variable = diffusion
     property = diffusion
+    execute_on = 'initial linear'
   [../]
 
   [./SigmaA_AK]
   type = MaterialRealAux
     variable = sigma_a
     property = sigma_a
+    execute_on = 'initial linear'
   [../]
 
   [./SigmaT_AK]
   type = MaterialRealAux
     variable = sigma_t
     property = sigma_t
+    execute_on = 'initial linear'
   [../]
 []
 
@@ -345,9 +357,8 @@ membrane = 2.5e-2
     pressure = pressure
     jump_press = jump_grad_press
     jump_dens = jump_grad_dens
-    Cjump = 1.2
-    is_first_order_viscosity = false
     eos = eos
+    ics = ics
   [../]
 
   [./PhysicalPropertyMaterial]
@@ -356,7 +367,7 @@ membrane = 2.5e-2
     rho = rho
     pressure = pressure
     eos = eos
-    ics = ics 
+    ics = ics    
   [../]
 []
 
@@ -366,12 +377,13 @@ membrane = 2.5e-2
 # Define the functions computing the inflow and outflow boundary conditions.                 #
 ##############################################################################################
 [BCs]
-  [./MassRight]
+  [./Mass]
     type = RheaBCs
     variable = rho
     equation_name = continuity
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
@@ -379,12 +391,13 @@ membrane = 2.5e-2
     boundary = 'right left'
   [../]
 
-  [./MomentumRight]
+  [./Momentum]
     type = RheaBCs
     variable = rhou
     equation_name = x_momentum
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
@@ -392,29 +405,31 @@ membrane = 2.5e-2
     boundary = 'right left'
   [../]
 
-  [./EnergyRight]
+  [./Energy]
     type = RheaBCs
     variable = rhoE
     equation_name = energy
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
-    ics = ics    
+    ics = ics
     boundary = 'right left'
   [../]
   
-  [./RadiationLeft]
+  [./Radiation]
     type = RheaBCs
     variable = epsilon
     equation_name = radiation
     rho = rho
     rhou = rhou
+    rhoE = rhoE
     epsilon = epsilon
     pressure = pressure
     eos = eos
-    ics = ics    
+    ics = ics
     boundary = 'right left'
   [../]
 []
@@ -438,6 +453,23 @@ membrane = 2.5e-2
 []
 
 ##############################################################################################
+#                                  POSTPROCESSORS                                            #
+##############################################################################################
+# Define the functions computing the inflow and outflow boundary conditions.                 #
+##############################################################################################
+
+[Postprocessors]
+  [./dt]
+    type = TimeStepCFL
+    rho = rho
+    rhou = rhou
+    rhoE = rhoE
+    radiation = epsilon
+    eos = eos
+  [../]
+[]
+
+##############################################################################################
 #                                     EXECUTIONER                                            #
 ##############################################################################################
 # Define the functions computing the inflow and outflow boundary conditions.                 #
@@ -446,19 +478,21 @@ membrane = 2.5e-2
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 1.
+  end_time = 0.6
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
   nl_rel_tol = 1e-10
-  nl_abs_tol = 1e-7
+  nl_abs_tol = 1e-8
   l_max_its = 50
   nl_max_its = 50
-  num_steps = 20  
+#  num_steps = 3
+#  trans_ss_check = true
+#  ss_check_tol = 1.e-12
   [./TimeStepper]
-    type = FunctionDT
-    time_t =  '0.     1.e-2   1.e-1  1.'
-    time_dt = '1.e-4  1.e-4   1.e-3  1.e-3'
+    type = PostprocessorDT
+    postprocessor = dt
+    dt = 1.e-4
   [../]
 []
 
@@ -469,9 +503,17 @@ membrane = 2.5e-2
 ##############################################################################################
 
 [Outputs]
-  output_initial = true
-  interval = 1
-  exodus = true
+  [./console]
+    type = Console
+    perf_log = true
+    interval = 10
+  [../]
+
+  [./out]
+    type = Exodus
+    interval = 20
+    execute_on = 'initial timestep_end final'
+  [../]
 []
 
 ##############################################################################################

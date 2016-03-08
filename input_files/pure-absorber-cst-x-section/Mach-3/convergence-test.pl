@@ -1,5 +1,12 @@
 #!/usr/bin/perl
-
+############################################################################
+# ARGV[0]: number of cells for the first input file / run
+# ARGV[1]: number of times the input file is mcopied, modified and run
+# ARGV[2]: name of the template input file without the extension
+# ARGV[3]: 0 -> the number of cells is multiplied by two for each new run
+#          1 -> the number of cells is increased by 100 for each new run
+# Example: ./convergence-test.pl 100 10 mach-3 1
+############################################################################
 # the strict package forces you to declare each variable you use beforehand
 use strict;
 

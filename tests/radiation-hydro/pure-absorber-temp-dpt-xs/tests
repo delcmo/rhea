@@ -1,0 +1,7 @@
+[Tests]
+  [./1d-mach3-temp-dpt-xs]
+    type = 'Exodiff'
+    input = 'mach-3-temp-xs.i'
+    exodiff = 'mach-3-temp-xs_out.e'
+  [../]
+[]

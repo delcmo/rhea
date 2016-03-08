@@ -9,7 +9,7 @@ order = FIRST
 
 ###### Constans #######
 speed_of_light = 1.
-a = 0.
+a = 1.
 #sigma_a0 = '0. 0. 0.'
 #sigma_t0 = '1. 0. 0.'
 P = 1.
@@ -47,7 +47,7 @@ membrane = 0.5
   [../]
   
   [./ics]
-    type = ComputeICsRadHydro
+    type = InputFileSpecifiedICsRadHydro
     eos = eos
   [../]
 
@@ -276,6 +276,7 @@ membrane = 0.5
     Cjump = 4.
     is_first_order_viscosity = false
     eos = eos
+    ics = ics
   [../]
 
   [./PhysicalPropertyMaterial]
@@ -362,7 +363,6 @@ membrane = 0.5
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 1.
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
@@ -385,8 +385,12 @@ membrane = 0.5
 ##############################################################################################
 
 [Outputs]
-  output_initial = true
-  interval = 1
+  execute_on = 'initial timestep_end final'
+  [./console]
+    type = Console
+    perf_log = true
+    interval = 1
+  [../]
   exodus = true
 []
 

@@ -14,8 +14,6 @@ cross_section_name = temp_dpt_cs
 is_diffusion = false
 sigma_a0 = '0. 0. 0.'
 sigma_t0 = '2.e+003 0. 0.'
-rho_hat_0 = 1.
-T_hat_0 = 1.
 K = 1.
 SIGMA_A = 1.
 P = 1.
@@ -47,7 +45,7 @@ membrane = 0.5
   [../]
 
   [./ics]
-    type = ComputeICsRadHydro
+    type = InputFileSpecifiedICsRadHydro
     eos = eos
   [../]
 
@@ -226,6 +224,7 @@ membrane = 0.5
     Cjump = 15.
     is_first_order_viscosity = false
     eos = eos
+    ics = ics
   [../]
 
   [./PhysicalPropertyMaterial]
@@ -284,7 +283,6 @@ membrane = 0.5
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 1.
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
@@ -307,8 +305,12 @@ membrane = 0.5
 ##############################################################################################
 
 [Outputs]
-  output_initial = true
-  interval = 1
+  execute_on = 'initial timestep_end final'
+  [./console]
+    type = Console
+    perf_log = true
+    interval = 1
+  [../]
   exodus = true
 []
 

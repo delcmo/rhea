@@ -13,8 +13,6 @@ a = 1.
 cross_section_name = temp_dpt_cs
 sigma_a0 = '0. 0. 0.'
 sigma_t0 = '2.e+005 0. 0.'
-rho_hat_0 = 1.
-T_hat_0 = 1.
 K = 1.
 SIGMA_A = 1.
 P = 1.
@@ -46,7 +44,7 @@ membrane = 0.5
   [../]
   
   [./ics]
-    type = ComputeICsRadHydro
+    type = InputFileSpecifiedICsRadHydro
     eos = eos
   [../]  
 
@@ -222,9 +220,10 @@ membrane = 0.5
     pressure = pressure
     jump_press = jump_grad_press
     jump_dens = jump_grad_dens
-    Cjump = 1.2
+    Cjump = 10.
     is_first_order_viscosity = false
     eos = eos
+    ics = ics
   [../]
 
   [./PhysicalPropertyMaterial]
@@ -283,11 +282,10 @@ membrane = 0.5
 [Executioner]
   type = Transient
   scheme = 'bdf2'
-  end_time = 1.
   dt = 1.e-4
   dtmin = 1e-9
   l_tol = 1e-8
-  nl_rel_tol = 1e-10
+  nl_rel_tol = 1e-6
   nl_abs_tol = 1e-7
   l_max_its = 50
   nl_max_its = 50
@@ -295,7 +293,7 @@ membrane = 0.5
   [./TimeStepper]
     type = FunctionDT
     time_t =  '0.     3.e-2   1.e-1  1.'
-    time_dt = '1.e-3  1.e-3   1.e-3  1.e-3'
+    time_dt = '1.e-4  1.e-4   1.e-4  1.e-4'
   [../]
 []
 
@@ -306,8 +304,12 @@ membrane = 0.5
 ##############################################################################################
 
 [Outputs]
-  output_initial = true
-  interval = 1
+  execute_on = 'initial timestep_end final'
+  [./console]
+    type = Console
+    perf_log = true
+    interval = 1
+  [../]
   exodus = true
 []
 

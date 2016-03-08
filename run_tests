@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sys, os, inspect
 
+print 'The tests run for the application Rhea take about one minute each since steady state is reached for most of them. Be patient!!!!!'
+
 # Set the current working directory to the directory where this script is located
 os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
 

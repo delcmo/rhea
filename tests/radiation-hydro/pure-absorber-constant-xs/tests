@@ -1,0 +1,37 @@
+[Tests]
+  [./1d-mach-1p05]
+    type = 'Exodiff'
+    input = 'mach-1p05.i'
+    exodiff = 'mach-1p05_out.e'
+  [../]
+
+  [./1d-mach-1p2]
+    type = 'Exodiff'
+    input = 'mach-1p2.i'
+    exodiff = 'mach-1p2_out.e'
+  [../]
+
+  [./1d-mach2]
+    type = 'Exodiff'
+    input = 'mach-2.i'
+    exodiff = 'mach-2_out.e'
+  [../]
+
+  [./1d-mach3]
+    type = 'Exodiff'
+    input = 'mach-3.i'
+    exodiff = 'mach-3_out.e'
+  [../]
+
+  [./1d-mach3-with-jump]
+    type = 'Exodiff'
+    input = 'mach-3-with-jump.i'
+    exodiff = 'mach-3-with-jump_out.e'
+  [../]
+
+  [./1d-mach5]
+    type = 'Exodiff'
+    input = 'mach-5.i'
+    exodiff = 'mach-5_out.e'
+  [../]
+[]
