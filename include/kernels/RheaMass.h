@@ -37,7 +37,7 @@ protected:
 
 private:
   // Coupled variables
-  VariableValue & _rhou;
+  const VariableValue & _rhou;
 
   // Integer for jacobian terms
   unsigned int _rhou_nb;

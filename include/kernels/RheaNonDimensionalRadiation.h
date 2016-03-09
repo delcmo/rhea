@@ -40,9 +40,9 @@ protected:
 private:
 
   // Coupled variables:
-  VariableValue & _rho;
-  VariableValue & _rhou;
-  VariableValue & _rhoE;
+  const VariableValue & _rho;
+  const VariableValue & _rhou;
+  const VariableValue & _rhoE;
 
   // Equation of state
   const EquationOfState & _eos;
@@ -55,8 +55,8 @@ private:
   const InputFileSpecifiedICsRadHydro & _ics;
 
   // Non-dimensional numbers
-  Real _SIGMA;
-  Real _K;
+  const Real _SIGMA;
+  const Real _K;
 
   // Integers for jacobian terms
   unsigned int _rho_nb;

@@ -42,16 +42,16 @@ private:
   bool _is_dmsl_form;
 
   // coupled variables:
-  VariableValue & _rho;
-  VariableValue & _rhoE;
-  VariableValue & _epsilon;
+  const VariableValue & _rho;
+  const VariableValue & _rhoE;
+  const VariableValue & _epsilon;
 
   // userobjects: EoS and ICs
   const EquationOfState & _eos;
   const InputFileSpecifiedICsRadHydro & _ics;
 
   // Non-dimensional number Po
-  Real _Po;
+  const Real _Po;
 
   // Integers for jacobian terms
   unsigned int _rho_nb;

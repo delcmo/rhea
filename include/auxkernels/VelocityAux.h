@@ -34,8 +34,8 @@ protected:
   virtual Real computeValue();
 
   // Coupled variables:
-  VariableValue & _rho;
-  VariableValue & _rhou;
+  const VariableValue & _rho;
+  const VariableValue & _rhou;
 };
 
 #endif //VelocityAux_H

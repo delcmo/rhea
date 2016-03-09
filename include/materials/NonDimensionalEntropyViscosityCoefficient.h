@@ -25,32 +25,32 @@ private:
   bool _is_dmsl_form;
 
   // Coupled variables
-  VariableValue & _rho;
-  VariableValue & _rho_old;
-  VariableValue & _rho_older;
-  VariableGradient & _grad_rho;
-  VariableValue & _rhou;
-  VariableValue & _eps;
-  VariableValue & _eps_old;
-  VariableValue & _eps_older;
-  VariableGradient & _grad_eps;
+  const VariableValue & _rho;
+  const VariableValue & _rho_old;
+  const VariableValue & _rho_older;
+  const VariableGradient & _grad_rho;
+  const VariableValue & _rhou;
+  const VariableValue & _eps;
+  const VariableValue & _eps_old;
+  const VariableValue & _eps_older;
+  const VariableGradient & _grad_eps;
 
   // Coupled aux variables
-  VariableValue & _press;
-  VariableValue & _press_old;
-  VariableValue & _press_older;
-  VariableGradient & _grad_press;
+  const VariableValue & _press;
+  const VariableValue & _press_old;
+  const VariableValue & _press_older;
+  const VariableGradient & _grad_press;
 
   // Jump values:
-  VariableValue & _jump_press;
-  VariableValue & _jump_dens;
+  const VariableValue & _jump_press;
+  const VariableValue & _jump_dens;
 
   // Material properties: viscosity coefficients.
   MaterialProperty<Real> & _kappa;
   MaterialProperty<Real> & _kappa_max;
 
   // Multiplicative coefficient for viscosity:
-  double _Cjump;
+  const Real _Cjump;
   bool _is_first_order_viscosity;
   bool _use_jumps;
 
@@ -61,7 +61,7 @@ private:
   const ComputeICsRadHydro & _ics;
 
   // Non-dimensional number
-  Real _Po;
+  const Real _Po;
 };
 
 #endif // NONDIMENSIONALENTROPYVISCOSITYCOEFFICIENT_H

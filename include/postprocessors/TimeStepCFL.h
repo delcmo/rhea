@@ -28,16 +28,16 @@ public:
 protected:
 
   // Coupled variables
-  VariableValue & _rho;
-  VariableValue & _rhou;
-  VariableValue & _rhoE;
-  VariableValue & _epsilon;
+  const VariableValue & _rho;
+  const VariableValue & _rhou;
+  const VariableValue & _rhoE;
+  const VariableValue & _epsilon;
 
   // Equation of state
   const EquationOfState & _eos;
 
   // Parameter
-  Real _cfl;
+  const Real _cfl;
   Real _value;
 };
 

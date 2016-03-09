@@ -43,10 +43,10 @@ private:
   bool _is_dmsl_form;
 
   // coupled variables:
-  VariableValue & _rho;
-  VariableValue & _rhou;
-  VariableValue & _epsilon;
-  VariableGradient & _grad_eps;
+  const VariableValue & _rho;
+  const VariableValue & _rhou;
+  const VariableValue & _epsilon;
+  const VariableGradient & _grad_eps;
 
   // Equation of state
   const EquationOfState & _eos;
@@ -58,12 +58,12 @@ private:
   const InputFileSpecifiedICsRadHydro & _ics;
 
   // Dimensional numbers
-  Real _c;
-  Real _a;
+  const Real _c;
+  const Real _a;
 
   // Non-dimensional numbers
-  Real _Po;
-  Real _SIGMA;
+  const Real _Po;
+  const Real _SIGMA;
 
   // Integers jacobian terms
   unsigned int _rho_nb;

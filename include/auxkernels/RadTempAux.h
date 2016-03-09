@@ -34,9 +34,9 @@ protected:
   virtual Real computeValue();
 
   // Coupled variables
-  VariableValue & _eps;
+  const VariableValue & _eps;
   // Constant
-  Real _a;
+  const Real _a;
 };
 
 #endif //RADTEMPAUX_H

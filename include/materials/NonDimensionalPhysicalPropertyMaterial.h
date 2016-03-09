@@ -35,10 +35,10 @@ private:
   bool _is_diffusion;
 
   // Coupled variables:
-  VariableValue & _rho;
+  const VariableValue & _rho;
 
   // Coupled aux variables:
-  VariableValue & _press;
+  const VariableValue & _press;
 
   // Material properties: cross-section and diffusion.
   MaterialProperty<Real> & _sigma_a;

@@ -42,14 +42,14 @@ protected:
   MooseEnum _eqn_type;
 
   // Coupled aux variables
-  VariableValue & _rho;
-  VariableValue & _rho_old;
-  VariableValue & _rhou;
-  VariableValue & _rhou_old;
-  VariableValue & _epsilon;
-  VariableValue & _epsilon_old;
-  VariableValue & _pressure;
-  VariableValue & _pressure_old;
+  const VariableValue & _rho;
+  const VariableValue & _rho_old;
+  const VariableValue & _rhou;
+  const VariableValue & _rhou_old;
+  const VariableValue & _epsilon;
+  const VariableValue & _epsilon_old;
+  const VariableValue & _pressure;
+  const VariableValue & _pressure_old;
 
   // Material property:
   const MaterialProperty<Real> & _D;
@@ -61,8 +61,8 @@ protected:
   const InputFileSpecifiedICsRadHydro & _ics;
 
   // Non-dimensional numbers
-  Real _Po;
-  Real _K;
+  const Real _Po;
+  const Real _K;
 
   // Integers jacobian terms
   unsigned int _rho_nb;
