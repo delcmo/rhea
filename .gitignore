@@ -44,3 +44,6 @@
 lib/
 .DS_Store
 *.csv
+
+# Allow certain files in gold directories
+!**/gold/*.e
